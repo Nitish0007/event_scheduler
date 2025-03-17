@@ -16,13 +16,7 @@ Devise.setup do |config|
   # by default. You can change it below and use your own secret key.
   # config.secret_key = '3de9421db931f167a944fbb42a59144e15e80a608a9e15ed0cc9b7015f19379190c8448ed2abe41c549edd91e6cd972181c5f9d7f2e09af0df2f77b0e018a02e'
 
-  config.jwt do |jwt|
-    jwt.secret = Rails.application.credentials.devise_jwt_secret_key || ENV['DEVISE_JWT_SECRET_KEY']
-    jwt.dispatch_requests = [['POST', %r{^/api/v1/users/sign_in$}]]
-    jwt.expiration_time = 1.day.to_i
-  end
-
-  config.navigational_formats = [:json]
+  config.navigational_formats = []
   # ==> Controller configuration
   # Configure the parent class to the devise controllers.
   # config.parent_controller = 'DeviseController'
@@ -285,8 +279,9 @@ Devise.setup do |config|
   # change the failure app, you can configure them inside the config.warden block.
   #
   # config.warden do |manager|
-  #   manager.intercept_401 = false
-  #   manager.default_strategies(scope: :user).unshift :some_external_strategy
+  #   manager.failure_app = Devise::FailureApp
+    # manager.intercept_401 = false
+    # manager.default_strategies(scope: :user).unshift :some_external_strategy
   # end
 
   # ==> Mountable engine configurations

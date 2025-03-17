@@ -1,4 +1,11 @@
 Rails.application.routes.draw do
+  require 'sidekiq/web'
+
+  Rails.application.routes.draw do 
+    mount Sidekiq::Web => '/sidekiq'
+  end
+  
+
   # devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -9,19 +16,17 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
 
-  # devise_for :organizers, controllers: {
-  #   registrations: 'organizers/registrations',
-  #   sessions: 'organizers/sessions'
-  # }, skip: [:passwords]
-
-  # devise_for :customers, controllers: {
-  #   registrations: 'customers/registrations',
-  #   sessions: 'customers/sessions'
-  # }, skip: [:passwords]
-
   namespace :api do
     namespace :v1 do
-      devise_for :users, controllers: { registrations: 'api/v1/users/registrations' }, skip: [:sessions, :passwords]
+
+      # --------------------   ROUTES FOR AUTHENTICATION   -------------------- #
+      devise_for :users,
+      controllers: {
+        registrations: 'api/v1/users/registrations',
+        sessions: 'api/v1/users/sessions'
+      },
+      skip: [:password],
+      defaults: { format: :json }
 
       devise_scope :api_v1_user do
         # sign_up routes
@@ -32,7 +37,17 @@ Rails.application.routes.draw do
         post 'organizers/sign_in', to: 'organizers/sessions#create'
         post 'customers/sign_in', to: 'customers/sessions#create'
       end
+      # ----------------------------------------------------------------------- #
 
+      # routes will be accessible by user_id to authenticate on the roles basis
+      scope path: "/:user_id" do
+        resources :organizers
+        resources :customers
+        resources :events
+        resources :tickets
+        resources :bookings
+      end
     end
   end
+
 end

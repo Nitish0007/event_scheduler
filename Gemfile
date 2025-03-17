@@ -67,7 +67,8 @@ group :test do
   gem "selenium-webdriver"
 end
 
+gem 'dotenv-rails'
 gem "devise", "~> 4.9"
 gem "rack-cors"
 gem "sidekiq", "~> 8.0"
-gem "devise-jwt"
+gem "jwt"
