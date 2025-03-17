@@ -1,31 +1,45 @@
 # README
 
 ****------------ STEPS TO RUN ------------****
+
 **Dependencies**
+
 ruby version - 3.2.2
+
 rails version - "rails", "~> 7.1.3", ">= 7.1.3.4"
+
 postgresql(there is not strict version requirement, but try using 14, if other versions won't cause any issue)
+
 redis installed
+
 create .env file and add -> DEVISE_JWT_SECRET_KEY=jwtqwertyuiop1234567890
 
 
 **Clone the repo and rub following commands in terminal** 
+
 git clone https://github.com/Nitish0007/event_scheduler.git
+
 cd event_scheduler
 
+
 bundle install
+
 rails db:create
+
 rails db:migrate
 
 **RUN REDIS locally using command**
+
 redis-server
 
 **RUN Sidekiq**
+
 bundle exec sidekiq
 
 
 **-------- ROUTES ---------**
 - Authorization header needs to be passed as Bearer 'token', for accessing routes other than sign_in/sign_up
+
 - For other routes token needs to be passed specific to user_id used in routes 
 
                api_v1_organizers_sign_up POST   /api/v1/organizers/sign_up(.:format)                                                              api/v1/organizers/registrations#create
