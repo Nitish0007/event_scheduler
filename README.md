@@ -8,7 +8,7 @@ ruby version - 3.2.2
 
 rails version - "rails", "~> 7.1.3", ">= 7.1.3.4"
 
-postgresql(there is not strict version requirement, but try using 14, if other versions won't cause any issue)
+postgresql(there is not strict version requirement, but try using 14, if other versions cause any issue)
 
 redis installed
 
