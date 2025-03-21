@@ -15,7 +15,7 @@ redis installed
 create .env file and add -> DEVISE_JWT_SECRET_KEY=jwtqwertyuiop1234567890
 
 
-**Clone the repo and rub following commands in terminal** 
+**Clone the repo and run following commands in terminal** 
 
 git clone https://github.com/Nitish0007/event_scheduler.git
 
