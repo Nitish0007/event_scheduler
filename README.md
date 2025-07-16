@@ -79,9 +79,7 @@ bundle exec sidekiq
                                          PUT    /api/v1/:user_id/bookings/:id(.:format)                                                           api/v1/bookings#update
                                          DELETE /api/v1/:user_id/bookings/:id(.:format)                                                           api/v1/bookings#destroy
 
-for any quesry please reach out
+for any query please reach out
 Email: 0007nitishsharma@gmail.com
-conact number: +91-9991529590
-
 
 
