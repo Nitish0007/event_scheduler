@@ -3,36 +3,22 @@ class Api::V1::Organizers::RegistrationsController < Api::V1::Users::Registratio
   # action for registering organizer
   def create
     error_msg = nil
-    organizer = nil
-    ActiveRecord::Base.transaction do
-      begin
-        # save user using devise registration
-        super
+    begin
+      super # initialize user using devise's build_resource method
 
-        if resource.save
-          organizer = Organizer.new(organizer_create_params)
-          organizer.user_id = resource.id
-          unless organizer.save
-            error_msg = organizer.errors.full_messages
-            Rails.logger.error ">>>>>>>>>>>> Organizer not saved: #{error_msg}"
-            raise ActiveRecord::Rollback
-          end
-        else
-          error_msg = resource.errors.full_messages
-          Rails.logger.error ">>>>>>>>>>>> User not created: #{error_msg}"
-          raise ActiveRecord::Rollback
-        end
+      unless resource.save
+        error_msg = resource.errors.full_messages
+        Rails.logger.error ">>>>>>>>>>>> User not created: #{error_msg}"
       end
     rescue => e
       error_msg ||= [e.message]
       Rails.logger.error ">>>>>>>>>>>> Error registering Organizer: #{e.message}"
-      raise ActiveRecord::Rollback
     end
 
-    if error_msg.blank? && organizer.present? && organizer.persisted?
+    if error_msg.blank?
       render json: {
         message: "Organizer signed up successfully!!",
-        organizer: organizer.as_json.merge({email: resource.email})
+        organizer: resource.as_json
       }, status: :created
     else
       render json: {  errors: error_msg}, status: :unprocessable_entity
@@ -41,11 +27,6 @@ class Api::V1::Organizers::RegistrationsController < Api::V1::Users::Registratio
 
   private
   def sign_up_params
-    params.require(:user).permit(:email, :password, :password_confirmation).merge(role: :organizer)
+    params.require(:user).permit(:first_name, :last_name, :phone,:email, :password, :password_confirmation).merge(role: :organizer)
   end
-
-  def organizer_create_params
-    params.require(:user).permit(:first_name, :last_name, :phone)
-  end
-
 end

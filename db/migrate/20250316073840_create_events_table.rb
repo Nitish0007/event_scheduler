@@ -6,8 +6,6 @@ class CreateEventsTable < ActiveRecord::Migration[7.1]
       t.datetime :event_date, null: false
       t.bigint :tickets_count, default: 0
       
-      t.bigint :organizer_id, null: false
-
       t.timestamps
     end
   end

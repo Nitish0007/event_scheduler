@@ -4,7 +4,7 @@ class Api::V1::EventsController < ApplicationController
   def index
     events = Event.all.includes(:tickets)
     if params[:organizer_id]
-      events = events.where(organizer_id: params[:organizer_id])
+      events = events.where(userr_id: params[:organizer_id])
     end
 
     render json: {data: events.map{ |e| e.as_json(include: [:tickets])}}, status: :ok
@@ -22,6 +22,8 @@ class Api::V1::EventsController < ApplicationController
   def create
     event = Event.new(event_params)
     if event.save
+      # Reload the event to get updated values after after_commit callbacks
+      event.reload
       render json: {data: event}, status: :created
     else
       render json: {errors: event.errors}, status: :unprocessable_entity
@@ -32,6 +34,8 @@ class Api::V1::EventsController < ApplicationController
     event = Event.find_by_id(params[:id])
     if event.present?
       if event.update(event_params)
+        # Reload the event to get updated values after after_commit callbacks
+        event.reload
         render json: {data: event.as_json(include: [:tickets])}, status: :ok
       else
         render json: {errors: event.errors}, status: :unprocessable_entity
@@ -56,6 +60,6 @@ class Api::V1::EventsController < ApplicationController
 
   private
   def event_params
-    params.require(:event).permit(:event_title, :event_date, :event_venue, :organizer_id, tickets_attributes: [:id, :ticket_type, :price_per_ticket, :tickets_count, :booked_ticket_count, :_destroy])
+    params.require(:event).permit(:event_title, :event_date, :event_venue, :user_id, tickets_attributes: [:id, :ticket_type, :price_per_ticket, :tickets_count, :booked_ticket_count, :_destroy])
   end
 end

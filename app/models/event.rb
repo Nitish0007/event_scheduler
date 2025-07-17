@@ -1,5 +1,5 @@
 class Event < ApplicationRecord
-  belongs_to :organizer
+  belongs_to :user
   has_many :tickets, dependent: :destroy
 
   accepts_nested_attributes_for :tickets, allow_destroy: true
@@ -7,11 +7,14 @@ class Event < ApplicationRecord
   after_update :notify_customer_on_update
 
   def notify_customer_on_update
-    EventUpdationJob.perform_in(1.minute, self.id)
+    EventUpdationJob.perform_async(self.id)
   end
 
   def self.update_total_tickets_count_for_event event_id
-    Event.find_by(id: event_id).update_total_tickets_count_for_event
+    event = Event.find_by(id: event_id)
+    if event.present?
+      event.update_total_tickets_count_for_event
+    end
   end
 
   def update_total_tickets_count_for_event

@@ -3,36 +3,23 @@ class Api::V1::Customers::RegistrationsController < Api::V1::Users::Registration
   # action for registering customer
   def create
     error_msg = nil
-    customer = nil
-    ActiveRecord::Base.transaction do
-      begin
-        # save user using devise registration
-        super
+    
+    begin
+      super # initialize user using devise's build_resource method
 
-        if resource.save
-          customer = Customer.new(customer_create_params)
-          customer.user_id = resource.id
-          unless customer.save
-            error_msg = customer.errors.full_messages
-            Rails.logger.error ">>>>>>>>>>>> Customer not saved: #{error_msg}"
-            raise ActiveRecord::Rollback
-          end
-        else
-          error_msg = resource.errors.full_messages
-          Rails.logger.error ">>>>>>>>>>>> User not created: #{error_msg}"
-          raise ActiveRecord::Rollback
-        end
+      unless resource.save
+        error_msg = resource.errors.full_messages
+        Rails.logger.error ">>>>>>>>>>>> User not created: #{error_msg}"
       end
     rescue => e
       error_msg ||= [e.message]
       Rails.logger.error ">>>>>>>>>>>> Error registering Customer: #{e.message}"
-      raise ActiveRecord::Rollback
     end
 
-    if error_msg.blank? && customer.present? && customer.persisted?
+    if error_msg.blank?
       render json: {
         message: "Customer signed up successfully!!",
-        organizer: customer.as_json.merge({email: resource.email})
+        customer: resource.as_json
       }, status: :created
     else
       render json: {  errors: error_msg}, status: :unprocessable_entity
@@ -41,11 +28,6 @@ class Api::V1::Customers::RegistrationsController < Api::V1::Users::Registration
 
   private
   def sign_up_params
-    params.require(:user).permit(:email, :password, :password_confirmation).merge(role: :customer)
+    params.require(:user).permit(:first_name, :last_name, :phone, :email, :password, :password_confirmation).merge(role: :customer)
   end
-
-  def customer_create_params
-    params.require(:user).permit(:first_name, :last_name, :phone, :company)
-  end
-
 end

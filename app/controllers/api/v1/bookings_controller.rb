@@ -2,9 +2,7 @@ class Api::V1::BookingsController < ApplicationController
   before_action :allow_customer_only, only: [:create, :destroy]
 
   def index
-    # returns the bookings of current customer
-    customer_id = current_user.customer.id
-    bookings = Booking.where(customer_id: customer_id)
+    bookings = Booking.where(user_id: current_user.id)
     if params[:event_id].present?
       bookings = bookings.where(event_id: params[:event_id])
     end
@@ -13,9 +11,18 @@ class Api::V1::BookingsController < ApplicationController
   end
 
   def create
+    event = Event.find_by_id(params[:booking][:event_id])
+    if event.present?
+      ticket_id = event.tickets.where(ticket_type: params[:booking][:ticket_type]).first&.id
+      unless ticket_id.present?
+        render json: { errors: ["No '#{params[:booking][:ticket_type]}' tickets available for this event"] }, status: :unprocessable_entity
+      end
+      params[:booking][:ticket_id] = ticket_id
+    end
     booking = Booking.new(booking_params)
+
     if booking.save
-      render json: { data: booking }, status: :created
+      render json: { data: "Your Request is being processed you will get email on booking status" }, status: :created
     else
       render json: { errors: booking.errors }, status: :unprocessable_entity
     end
@@ -41,6 +48,6 @@ class Api::V1::BookingsController < ApplicationController
 
   private
   def booking_params
-    params.require(:booking).permit(:customer_id, :ticket_id, :quantity)
+    params.require(:booking).permit(:user_id, :quantity, :ticket_id)
   end
 end

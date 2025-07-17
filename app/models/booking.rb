@@ -1,5 +1,5 @@
 class Booking < ApplicationRecord
-  belongs_to :customer
+  belongs_to :user
   belongs_to :ticket
 
   before_save :check_availability
@@ -8,7 +8,7 @@ class Booking < ApplicationRecord
   after_commit :send_confirmation_notification
 
   def send_confirmation_notification
-    BookingConfirmationJob.perform_in(1.minute, customer_id, ticket_id)
+    BookingConfirmationJob.perform_async(user_id, ticket_id)
   end
 
   def check_availability
@@ -26,8 +26,7 @@ class Booking < ApplicationRecord
   end
 
   def update_booked_tickets_count_on_cancel
-    updated_booked_tickets_count = ticket.booked_ticket_count - self.quantity
-    ticket.update_column(:booked_ticket_count, updated_booked_tickets_count)
+    BookingCancellationJob.perform_async(self.id)
   end
 
 end

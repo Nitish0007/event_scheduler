@@ -10,29 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_03_16_074512) do
+ActiveRecord::Schema[7.1].define(version: 2025_07_16_180937) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "bookings", force: :cascade do |t|
-    t.bigint "customer_id", null: false
     t.bigint "ticket_id", null: false
     t.integer "quantity", default: 1, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["customer_id"], name: "index_bookings_on_customer_id"
-    t.index ["ticket_id"], name: "index_bookings_on_ticket_id"
-  end
-
-  create_table "customers", force: :cascade do |t|
-    t.string "first_name"
-    t.string "last_name"
-    t.string "phone_number"
-    t.string "address"
     t.bigint "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_customers_on_user_id"
+    t.index ["ticket_id"], name: "index_bookings_on_ticket_id"
+    t.index ["user_id"], name: "index_bookings_on_user_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -40,21 +29,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_16_074512) do
     t.string "event_venue", null: false
     t.datetime "event_date", null: false
     t.bigint "tickets_count", default: 0
-    t.bigint "organizer_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-  end
-
-  create_table "organizers", force: :cascade do |t|
-    t.string "first_name"
-    t.string "last_name"
-    t.string "phone_number"
-    t.string "agency_address"
-    t.string "agency_name"
     t.bigint "user_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_organizers_on_user_id"
+    t.index ["user_id"], name: "index_events_on_user_id"
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -74,12 +52,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_03_16_074512) do
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.integer "role", default: 0, null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "phone"
+    t.string "company"
+    t.string "address"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "bookings", "customers"
   add_foreign_key "bookings", "tickets"
-  add_foreign_key "customers", "users"
-  add_foreign_key "organizers", "users"
+  add_foreign_key "bookings", "users"
+  add_foreign_key "events", "users"
 end

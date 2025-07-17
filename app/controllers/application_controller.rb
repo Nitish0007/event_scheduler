@@ -4,6 +4,10 @@ class ApplicationController < ActionController::Base
 	before_action :validate_request_format
 	before_action :authenticate_request!
 
+	helper_method :current_user
+	helper_method :organizer_user?
+	helper_method :customer_user?
+
 	def authenticate_request!
 		fetch_token_from_request
 		if @token.nil?

@@ -1,8 +1,8 @@
 class Api::V1::TicketsController < ApplicationController
-  before_action :allow_organizer_only, only: [:index, :create, :update, :destroy]
+  before_action :allow_organizer_only, only: [:create, :update, :destroy]
 
   def index
-    tickets = Ticket.allow
+    tickets = Ticket.all
     render json: { data: tickets }, status: :ok
   end
 
