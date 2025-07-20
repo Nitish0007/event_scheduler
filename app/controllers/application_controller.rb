@@ -1,14 +1,27 @@
 class ApplicationController < ActionController::Base
 	skip_forgery_protection if: -> { request.format.json? }
-	respond_to :json
+	# respond_to :json, :html, :turbo_stream
+	
 	before_action :validate_request_format
 	before_action :authenticate_request!
-
+	
 	helper_method :current_user
 	helper_method :organizer_user?
 	helper_method :customer_user?
+	helper_method :is_api_request?
+
+	# override devise's authenticate_user! method to rails-views requests and avoid in case of APIs requests
+	def authenticate_user!
+		unless is_api_request? && user_signed_in?
+			redirect_to after_unauthenticated_path_for(current_user) && return # return is used because redirect_to continues execution of the method
+		end
+		super unless is_api_request?
+	end
 
 	def authenticate_request!
+		# Only authenticate for v1 API requests
+		return unless is_api_request?
+		
 		fetch_token_from_request
 		if @token.nil?
 			render json: { error: 'Unauthorized request' }, status: :unauthorized
@@ -26,7 +39,9 @@ class ApplicationController < ActionController::Base
 	end
 	
 	def current_user
-		@current_user
+		# super will be called in case of rails-views requests
+		# api requests current_user will be set in authenticate_request! method
+		@current_user ||= super 
 	end
 
 	def organizer_user?
@@ -49,9 +64,20 @@ class ApplicationController < ActionController::Base
 		end
 	end
 
+	def is_api_request?
+		request.path.start_with?('/api/v1')
+	end
+
+	protected
+	def after_unauthenticated_path_for(resource_or_scope)
+		welcome_path
+	end
+
 	private
 	def validate_request_format
-		return render json: { error: 'Invalid request format. Please use JSON format' }, status: :bad_request if !request.format.json?
+		if is_api_request? && !request.format.json?
+			return render json: { error: 'Invalid request format. Please use JSON format' }, status: :bad_request
+		end
 	end
 
 	def fetch_token_from_request

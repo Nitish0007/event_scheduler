@@ -1,0 +1,43 @@
+<% content_for :subtitle do %>
+  Create your customer account
+<% end %>
+
+<%= form_for(resource, as: resource_name, url: customer_sign_up_path(resource_name), html: { class: "space-y-6", data: { turbo: false } }) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div>
+    <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", 
+        class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= f.label :password, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.password_field :password, autocomplete: "new-password",
+        class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" %>
+    <% if @minimum_password_length %>
+      <p class="mt-1 text-sm text-gray-500">
+        <%= @minimum_password_length %> characters minimum
+      </p>
+    <% end %>
+  </div>
+
+  <div>
+    <%= f.label :password_confirmation, class: "block text-sm font-medium text-gray-700" %>
+    <%= f.password_field :password_confirmation, autocomplete: "new-password",
+        class: "mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm" %>
+  </div>
+
+  <div>
+    <%= f.submit "Sign up", class: "group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
+  </div>
+<% end %>
+
+<% content_for :footer_links do %>
+  <p class="text-sm text-gray-600">
+    Already have an account?
+    <%= link_to "Sign in", new_customer_sign_in_path, class: "font-medium text-indigo-600 hover:text-indigo-500" %>
+    <br>
+    <%= link_to "Sign up as Organizer", new_organizer_sign_up_path, class: "text-purple-600 hover:text-purple-500 text-sm font-medium" %>
+  </p>
+<% end %> 

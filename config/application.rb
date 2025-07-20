@@ -11,8 +11,8 @@ module EventScheduler
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.1
-    config.api_only = true
-    config.session_store :cookie_store, key: '_your_app_session'  # Enable sessions
+    # config.api_only = true  # Commented out to enable view helpers for HTML authentication
+    config.session_store :cookie_store, key: '_event_scheduler_app_session'  # Enable sessions
     config.middleware.use ActionDispatch::Cookies  # Allow cookies
     config.middleware.use ActionDispatch::Session::CookieStore, key: '_event_scheduler_app_session'
 

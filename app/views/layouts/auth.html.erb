@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EventScheduler - Authentication</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="bg-gray-50 min-h-screen">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-md w-full space-y-8">
+        <!-- Logo/Brand -->
+        <div class="text-center">
+          <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+            Event Scheduler
+          </h2>
+          <p class="mt-2 text-sm text-gray-600">
+            <%= yield :subtitle %>
+          </p>
+        </div>
+
+        <!-- Flash Messages -->
+        <% if notice %>
+          <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline"><%= notice %></span>
+          </div>
+        <% end %>
+
+        <% if alert %>
+          <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline"><%= alert %></span>
+          </div>
+        <% end %>
+
+        <!-- Main Content -->
+        <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <%= yield %>
+        </div>
+
+        <!-- Footer Links -->
+        <div class="text-center">
+          <%= yield :footer_links %>
+        </div>
+      </div>
+    </div>
+  </body>
+</html> 

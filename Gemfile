@@ -72,3 +72,7 @@ gem "devise", "~> 4.9"
 gem "rack-cors"
 gem "sidekiq", "~> 8.0"
 gem "jwt"
+
+# For frontend
+gem "foreman"
+gem "tailwindcss-rails"
