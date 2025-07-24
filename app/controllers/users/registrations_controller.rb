@@ -3,6 +3,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   layout 'auth'
   
   before_action :set_devise_mapping
+  skip_before_action :authenticate_user!, only: [:new, :create]
   
   # GET /resource/sign_up
   def new

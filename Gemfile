@@ -72,6 +72,7 @@ gem "devise", "~> 4.9"
 gem "rack-cors"
 gem "sidekiq", "~> 8.0"
 gem "jwt"
+gem "kaminari"
 
 # For frontend
 gem "foreman"

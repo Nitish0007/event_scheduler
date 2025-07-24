@@ -1,3 +1,0 @@
-class ResourcesController < ApplicationController
-
-end

@@ -1,9 +1,6 @@
 Rails.application.routes.draw do
   require 'sidekiq/web'
-
-  Rails.application.routes.draw do 
-    mount Sidekiq::Web => '/sidekiq'
-  end
+  mount Sidekiq::Web => '/sidekiq'
   
 
   # devise_for :users

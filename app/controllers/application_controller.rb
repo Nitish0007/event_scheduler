@@ -4,6 +4,8 @@ class ApplicationController < ActionController::Base
 	
 	before_action :validate_request_format
 	before_action :authenticate_request!
+	before_action :authenticate_user!
+	skip_before_action :authenticate_user!, if: -> { is_api_request? || (controller_name == "dashboard" && action_name == "welcome") }
 	
 	helper_method :current_user
 	helper_method :organizer_user?
@@ -12,9 +14,6 @@ class ApplicationController < ActionController::Base
 
 	# override devise's authenticate_user! method to rails-views requests and avoid in case of APIs requests
 	def authenticate_user!
-		unless is_api_request? && user_signed_in?
-			redirect_to after_unauthenticated_path_for(current_user) && return # return is used because redirect_to continues execution of the method
-		end
 		super unless is_api_request?
 	end
 
@@ -39,9 +38,10 @@ class ApplicationController < ActionController::Base
 	end
 	
 	def current_user
-		# super will be called in case of rails-views requests
-		# api requests current_user will be set in authenticate_request! method
-		@current_user ||= super 
+		# For API requests, @current_user is set in authenticate_request! and should not trigger Devise's authenticate_user!
+		return @current_user if defined?(@current_user) && @current_user.present?
+		# For non-API (Rails views) requests, fallback to Devise's current_user
+		super unless is_api_request?
 	end
 
 	def organizer_user?

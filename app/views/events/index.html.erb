@@ -1,0 +1,9 @@
+<div>
+  <h1>Events</h1>
+  <% @events.each do |event| %>
+    <%= event.event_title %>
+    <%= event.event_date %>
+    <%= event.event_venue %>
+  <% end %>
+  <%= paginate @events %>
+</div>

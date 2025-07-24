@@ -4,7 +4,7 @@ class Api::V1::EventsController < ApplicationController
   def index
     events = Event.all.includes(:tickets)
     if params[:organizer_id]
-      events = events.where(userr_id: params[:organizer_id])
+      events = events.where(user_id: params[:organizer_id])
     end
 
     render json: {data: events.map{ |e| e.as_json(include: [:tickets])}}, status: :ok

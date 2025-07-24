@@ -2,6 +2,7 @@ class Users::SessionsController < Devise::SessionsController
   layout 'auth'
 
   before_action :set_devise_mapping
+  skip_before_action :authenticate_user!, only: [:new, :create]
 
   def new
     super
@@ -20,6 +21,7 @@ class Users::SessionsController < Devise::SessionsController
       ################################### DON NOT REMOVE THIS COMMENT ####################################
 
       super
+      Rails.logger.info "====================== #{user_signed_in?}"
     rescue => e
       Rails.logger.error "----------------- Error: #{e.inspect}"
       redirect_to new_user_sign_in_path, alert: "Invalid email or password"
@@ -28,17 +30,11 @@ class Users::SessionsController < Devise::SessionsController
   
 
   def destroy
-    Rails.logger.info "=== Destroy method called ==="
-    Rails.logger.info "Current user: #{current_user.inspect}"
-    
     # Sign out the user manually
-    sign_out(current_user) if current_user
-    
-    Rails.logger.info "=== After sign out ==="
-    Rails.logger.info "Current user: #{current_user.inspect}"
+    sign_out(:user) if current_user
     
     # Redirect to the after sign out path
-    return redirect_to after_sign_out_path_for(current_user), status: :see_other
+    return redirect_to after_sign_out_path_for(nil), status: :see_other
   end
 
   private

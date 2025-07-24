@@ -1,8 +1,4 @@
 class DashboardController < ApplicationController
-  include Devise::Controllers::Helpers
-
-  before_action :authenticate_user!
-  skip_before_action :authenticate_user!, only: [:welcome]
   
   def welcome
     render :welcome, layout: 'welcome'
@@ -13,7 +9,7 @@ class DashboardController < ApplicationController
       @user = current_user
       render :dashboard
     else
-      redirect_to welcome_path && return
+      redirect_to welcome_path
     end
   end
-end 
+end
