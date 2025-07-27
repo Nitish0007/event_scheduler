@@ -1,0 +1,35 @@
+<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+  <div class="rounded-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h1 class="text-2xl font-bold text-gray-900"><%= klass.name.titleize %></h1>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <% columns.each do |attr, label| %>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <%= label %>
+              </th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% data.each do |resource| %>
+            <tr class="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-200">
+              <% columns.each do |attribute, label| %>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= link_to resource.send(attribute), "/users/#{resource.user_id}/#{klass.name.pluralize.underscore}/#{resource.id}" %>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    
+    <%= render partial: 'shared/paginate', locals: {data: data} %>
+
+  </div>
+</div>

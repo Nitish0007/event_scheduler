@@ -1,0 +1,82 @@
+<% if data.respond_to?(:current_page) && data.total_pages > 1 %>
+  <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <!-- Page Info -->
+      <div class="text-sm text-gray-700 hidden sm:block">
+        Showing 
+        <span class="font-medium"><%= (data.current_page - 1) * data.limit_value + 1 %></span>
+        to 
+        <span class="font-medium">
+          <%= [data.current_page * data.limit_value, data.total_count].min %>
+        </span>
+        of 
+        <span class="font-medium"><%= data.total_count %></span>
+        results
+      </div>
+
+      <!-- Mobile Page Info -->
+      <div class="text-sm text-gray-700 sm:hidden text-center">
+        Page <span class="font-medium"><%= data.current_page %></span> of <span class="font-medium"><%= data.total_pages %></span>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div class="flex items-center justify-center sm:justify-end space-x-1">
+        <!-- Previous Page -->
+        <% if data.prev_page %>
+          <%= link_to "←", url_for(page: data.prev_page), 
+              class: "px-2 sm:px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200" %>
+        <% else %>
+          <span class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-md cursor-not-allowed">
+            ←
+          </span>
+        <% end %>
+
+        <!-- Page Numbers - Hidden on mobile, shown on larger screens -->
+        <div class="hidden sm:flex items-center space-x-1">
+          <% data.total_pages.times do |page_num| %>
+            <% page = page_num + 1 %>
+            <% if page == data.current_page %>
+              <span class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+                <%= page %>
+              </span>
+            <% elsif page <= 3 || page > data.total_pages - 2 || (page >= data.current_page - 1 && page <= data.current_page + 1) %>
+              <%= link_to page, url_for(page: page), 
+                  class: "px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200" %>
+            <% elsif page == 4 && data.current_page > 6 %>
+              <span class="px-2 py-2 text-sm text-gray-500">...</span>
+            <% elsif page == data.total_pages - 3 && data.current_page < data.total_pages - 5 %>
+              <span class="px-2 py-2 text-sm text-gray-500">...</span>
+            <% end %>
+          <% end %>
+        </div>
+
+        <!-- Mobile Page Numbers - Simplified for small screens -->
+        <div class="flex sm:hidden items-center space-x-1">
+          <% if data.current_page > 1 %>
+            <%= link_to data.current_page - 1, url_for(page: data.current_page - 1), 
+                class: "px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200" %>
+          <% end %>
+          
+          <span class="px-2 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600 rounded-md">
+            <%= data.current_page %>
+          </span>
+          
+          <% if data.current_page < data.total_pages %>
+            <%= link_to data.current_page + 1, url_for(page: data.current_page + 1), 
+                class: "px-2 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200" %>
+          <% end %>
+        </div>
+
+        <!-- Next Page -->
+        <% if data.next_page %>
+          <%= link_to "→", url_for(page: data.next_page), 
+              class: "px-2 sm:px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200" %>
+        <% else %>
+          <span class="px-2 sm:px-3 py-2 text-sm font-medium text-gray-300 bg-gray-100 border border-gray-200 rounded-md cursor-not-allowed">
+            →
+          </span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

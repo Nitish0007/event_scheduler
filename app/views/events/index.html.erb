@@ -1,9 +1,10 @@
-<div>
-  <h1>Events</h1>
-  <% @events.each do |event| %>
-    <%= event.event_title %>
-    <%= event.event_date %>
-    <%= event.event_venue %>
-  <% end %>
-  <%= paginate @events %>
-</div>
+<%= render partial: "shared/index_page", 
+  locals: { data: @events, klass: Event, columns: {
+    event_title: "Event Title",
+    event_date: "Event Date",
+    event_venue: "Event Venue",
+    tickets_count: "Total Tickets",
+    created_at: "Created At",
+    updated_at: "Updated At"
+  } }
+%>

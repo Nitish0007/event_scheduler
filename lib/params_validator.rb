@@ -19,7 +19,9 @@ module ParamsValidator
   end
 
   def valid_string?(string)
-    String(string) rescue false
+    String(string)
+    return true
+  rescue false
   end
 
   def valid_integer?(integer)
