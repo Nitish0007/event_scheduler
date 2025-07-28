@@ -4,8 +4,7 @@ class Api::V1::BaseController < ApplicationController
   include JsonHandler
 
   def index
-    command_class = "#{@base_klass.name}::Index".constantize
-    command = command_class.new(params, @base_klass, current_user, options)
+    command = command_klass(:index).new(params, @base_klass, current_user, options)
     result = command.run
     render_json(@base_klass, result, :ok)
   rescue BaseCommand::CommandError => e
@@ -16,32 +15,36 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def show
-    command_class = "#{@base_klass.name}::Show".constantize
-    command = command_class.new(params, @base_klass, current_user, options)
+    command = command_klass(:show).new(params, @base_klass, current_user, options)
     result = command.run
 
     render_json(result[:data], :ok, result[:meta_data])
   end
 
   def create
-    command_class = "#{@base_klass.name}::Create".constantize
-    command = command_class.new(params, @base_klass, current_user, options)
+    command = command_klass(:create).new(create_params, @base_klass, current_user, options)
     result = command.run
 
-    render_json(result[:data], :created, result[:meta_data])
+    render_json(@base_klass, result, :created)
+  rescue BaseCommand::CommandError => e
+    render_error(e.error_message, e.status_code)
+  rescue ActiveRecord::RecordInvalid => e
+    render_error(e.message, :unprocessable_entity)
+  rescue => e
+    Rails.logger.error("Error in create action: #{e.message}")
+    render_error("Internal server error", :internal_server_error)
   end
 
   def update
     command_class = "#{@base_klass.name}::Update".constantize
-    command = command_class.new(params, @base_klass, current_user, options)
+    command = command_class.new(update_params, @base_klass, current_user, options)
     result = command.run
 
     render_json(result[:data], :ok, result[:meta_data])
   end
 
   def destroy
-    command_class = "#{@base_klass.name}::Destroy".constantize
-    command = command_class.new(params, @base_klass, current_user, options)
+    command = command_klass(:destroy).new(params, @base_klass, current_user, options)
     result = command.run
 
     render_json(result[:data], :ok, result[:meta_data])
@@ -55,6 +58,22 @@ class Api::V1::BaseController < ApplicationController
   end
 
   def options
+    # add options according to action_name in contorller so that we can override options in contorller
+    # handled options so far:
+    # filters, search_by, sort_by, sort_order
     @options ||= {}
   end
+
+  def create_params
+    params.require(@base_klass.name.underscore).permit!
+  end
+
+  def update_params
+    params.require(@base_klass.name.underscore).permit!
+  end
+
+  def command_klass action_name
+    "#{@base_klass.name}::#{action_name.capitalize}".constantize
+  end
+  
 end

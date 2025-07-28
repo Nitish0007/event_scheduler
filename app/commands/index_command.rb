@@ -6,9 +6,8 @@ class IndexCommand < BaseCommand
       resources = base_query
       resources = filter_resources(resources)
       resources = search_resources(resources)
+      resources = sort_resources(resources)
       resources = paginate_resources(resources)
-      # TODO: compare performance of include_resources and serializer
-      # resources = include_resources(resources) # using serializer instead of this for now
 
       return {
         data: resources,
@@ -22,9 +21,6 @@ class IndexCommand < BaseCommand
   end
 
   private
-  def options
-    @options ||= {}
-  end
 
   def search_resources(resources)
     return resources if @options[:search_by].blank?

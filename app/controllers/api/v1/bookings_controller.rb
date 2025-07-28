@@ -1,14 +1,5 @@
-class Api::V1::BookingsController < ApplicationController
+class Api::V1::BookingsController < Api::V1::BaseController
   before_action :allow_customer_only, only: [:create, :destroy]
-
-  def index
-    bookings = Booking.where(user_id: current_user.id)
-    if params[:event_id].present?
-      bookings = bookings.where(event_id: params[:event_id])
-    end
-
-    render json: { data: bookings }, status: :ok
-  end
 
   def create
     event = Event.find_by_id(params[:booking][:event_id])
@@ -49,5 +40,15 @@ class Api::V1::BookingsController < ApplicationController
   private
   def booking_params
     params.require(:booking).permit(:user_id, :quantity, :ticket_id)
+  end
+
+  def options
+    @options ||= {}
+    case action_name
+    when "index"
+      filters = { user_id: current_user.id }
+      filters[:event_id] = params[:event_id] if params[:event_id].present?
+      @options = @options.merge(filters: filters)
+    end
   end
 end

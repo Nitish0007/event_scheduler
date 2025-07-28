@@ -1,14 +1,14 @@
 class Api::V1::TicketsController < Api::V1::BaseController
   before_action :allow_organizer_only, only: [:create, :update, :destroy]
 
-  def create
-    ticket = Ticket.new(ticket_params)
-    if ticket.save
-      render json: { data: ticket }, status: :created
-    else
-      render json: { errors: ticket.errors }, status: :unprocessable_entity
-    end
-  end
+  # def create
+  #   ticket = Ticket.new(ticket_params)
+  #   if ticket.save
+  #     render json: { data: ticket }, status: :created
+  #   else
+  #     render json: { errors: ticket.errors }, status: :unprocessable_entity
+  #   end
+  # end
 
   def update
     ticket = Ticket.find_by_id(params[:id])
@@ -36,7 +36,7 @@ class Api::V1::TicketsController < Api::V1::BaseController
   end
 
   private
-  def ticket_params
+  def create_params
     params.require(:ticket).permit(:ticket_type, :event_id, :price_per_ticket, :tickets_count, :booked_ticket_count)
   end
 
