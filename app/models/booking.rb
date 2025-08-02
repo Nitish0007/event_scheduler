@@ -7,6 +7,8 @@ class Booking < ApplicationRecord
   before_destroy :update_booked_tickets_count_on_cancel
   after_commit :send_confirmation_notification
 
+  enum status: { pending: 0, confirmed: 1, cancelled: 2, failed: 3 }
+
   def send_confirmation_notification
     BookingConfirmationJob.perform_async(user_id, ticket_id)
   end

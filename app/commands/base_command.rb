@@ -1,6 +1,6 @@
 class BaseCommand
   attr_accessor :params, :klass, :user, :options
-  include ParamsValidator
+  include FieldsValidator
   
   class CommandError < StandardError
     attr_accessor :error_message, :status_code

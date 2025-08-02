@@ -1,5 +1,5 @@
-module ParamsValidator
-  def validate_params(params, klass)
+module FieldsValidator
+  def validate_fields(params, klass)
     klass.columns.each do |column|
       next if params[column.name].nil?
 

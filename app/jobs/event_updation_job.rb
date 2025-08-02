@@ -12,7 +12,7 @@ class EventUpdationJob
 
     ticket_ids = event.tickets.pluck(:id)
     customer_ids = Booking.where(ticket_id: ticket_ids).pluck(:user_id)
-
+    
     customer_ids.each do |customer_id|
       user = User.find_by_id(customer_id)
       if user.nil?

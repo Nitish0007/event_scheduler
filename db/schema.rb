@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_07_16_180937) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_01_181940) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_180937) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.decimal "total_amount", precision: 10, scale: 2, default: "0.0"
+    t.integer "status", default: 0
     t.index ["ticket_id"], name: "index_bookings_on_ticket_id"
     t.index ["user_id"], name: "index_bookings_on_user_id"
   end
@@ -43,6 +45,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_16_180937) do
     t.integer "booked_ticket_count", default: 0
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "available_count", default: 0
   end
 
   create_table "users", force: :cascade do |t|

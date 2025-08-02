@@ -1,8 +1,6 @@
 class IndexCommand < BaseCommand
   def run
     begin
-      validate_params(@params, @klass)
-
       resources = base_query
       resources = filter_resources(resources)
       resources = search_resources(resources)

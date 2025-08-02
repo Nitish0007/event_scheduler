@@ -11,7 +11,7 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   # def create
-  #   event = Event.new(event_params)
+  #   event = Event.new(create_params)
   #   if event.save
   #     # Reload the event to get updated values after after_commit callbacks
   #     event.reload
@@ -50,9 +50,9 @@ class Api::V1::EventsController < Api::V1::BaseController
   end
 
   private
-  def create_params
-    params.require(:event).permit(:event_title, :event_date, :event_venue, :user_id, tickets_attributes: [:id, :ticket_type, :price_per_ticket, :tickets_count, :booked_ticket_count, :_destroy])
-  end
+  # def create_params
+  #   params.require(:event).permit(:event_title, :event_date, :event_venue, :user_id, tickets_attributes: [:id, :ticket_type, :price_per_ticket, :tickets_count, :booked_ticket_count, :_destroy])
+  # end
 
   def update_params
     params.require(:event).permit(:event_title, :event_date, :event_venue, :user_id, tickets_attributes: [:id, :ticket_type, :price_per_ticket, :tickets_count, :booked_ticket_count, :_destroy])
