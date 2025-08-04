@@ -10,4 +10,9 @@ module ApplicationHelper
   def show_link(path, id)
     path.gsub(":id", id.to_s).to_s
   end
+
+  def inr_currency(amount)
+    number_to_currency(amount, unit: "₹", delimiter: ",", separator: ".", precision: 2)
+  end
+  
 end

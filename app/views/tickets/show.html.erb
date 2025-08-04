@@ -1,0 +1,56 @@
+<% if current_user.organizer? %>
+  <% actions = {
+    edit_ticket: {
+      title: "Edit Ticket",
+      request_type: "GET",
+      path: "/users/#{current_user.id}/tickets/#{@ticket.id}/edit"
+    },
+    back: {
+      title: "Back",
+      request_type: "GET",
+      path: "/users/#{current_user.id}/tickets"
+    }
+  } %>
+<% else %>
+  <% actions = {
+    book_ticket: {
+      title: "Book Ticket",
+      request_type: "POST",
+      path: "/users/#{current_user.id}/tickets/#{@ticket.id}/bookings"
+    },
+    back: {
+      title: "Back",
+      request_type: "GET",
+      path: "/users/#{current_user.id}/tickets"
+    }
+  } %>
+<% end %>
+
+<%= render partial: "shared/show_page", 
+  locals: { 
+    resource: @ticket, 
+    klass: Ticket, 
+    columns: {
+      ticket_type: "Ticket Type",
+      price_per_ticket: "Ticket Price",
+      available_count: "Available Count",
+      booked_ticket_count: "Booked Count",
+      tickets_count: "Total Count",
+      created_at: "Created At"
+    },
+    relationships: {
+      bookings: {
+        title: "Bookings",
+        description: "Bookings for ticket type: #{@ticket.ticket_type}",
+        columns: {
+          id: "Booking ID",
+          quantity: "Ticket Count",
+          total_amount: "Total Amount",
+          status: "Booking Status",
+          created_at: "Booked At"
+        }
+      }
+    },
+    actions: actions
+  }
+%>

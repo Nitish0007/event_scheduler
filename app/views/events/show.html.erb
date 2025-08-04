@@ -1,1 +1,61 @@
-<%= render partial: 'shared/show_page', locals: {data: @event, klass: Event} %>
+<% if current_user.organizer? %>
+  <% actions = {
+    create_ticket: {
+      title: "Create Ticket",
+      request_type: "POST",
+      path: "/users/#{current_user.id}/events/#{@event.id}/tickets"
+    },
+    edit_event: {
+      title: "Edit Event",
+      request_type: "GET",
+      path: "/users/#{current_user.id}/events/#{@event.id}/edit"
+    },
+    back: {
+      title: "Back",
+      request_type: "GET",
+      path: "/users/#{current_user.id}/events"
+    }
+  } %>
+<% else %>
+ <% actions = {
+    book_ticket: {
+      title: "Book Ticket",
+      request_type: "POST",
+      path: "/users/#{current_user.id}/events/#{@event.id}/bookings"
+    },
+    back: {
+      title: "Back",
+      request_type: "GET",
+      path: "/users/#{current_user.id}/events"
+    }
+  } %>
+<% end %>
+
+
+<%= render partial: 'shared/show_page', 
+  locals: {
+    resource: @event, 
+    klass: Event,
+    columns: {
+      id: "Event ID",
+      event_title: "Event Title",
+      event_date: "Event Date",
+      event_venue: "Event Venue",
+      tickets_count: "Total Tickets"
+    },
+    relationships: {
+      tickets: {
+        title: "Tickets",
+        description: "Available tickets for this event",
+        columns: {
+          ticket_type: "Ticket Type",
+          price_per_ticket: "Price Per Ticket",
+          available_count: "Available Count",
+          booked_ticket_count: "Booked Count",
+          tickets_count: "Total Tickets"
+        }
+      }
+    },
+    actions: actions
+  } 
+%>
