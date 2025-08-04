@@ -1,7 +1,7 @@
 module JsonHandler
   def render_json(klass=nil, result=nil, status=:ok)
     if result.present?
-      data = serialize_data(result[:data], klass) if result[:data].present?
+      data = result[:data].present? ? serialize_data(result[:data], klass) : serialize_data(result, klass)
       meta = result[:meta_data] if result[:meta_data].present?
     end
 
@@ -25,7 +25,7 @@ module JsonHandler
   end
 
   def serialize_data(data, klass = nil) 
-    if klass.present?
+    if klass.present? && data.is_a?(klass)
       serializer = serializer_klass(klass)
       includes = serializer.try(:_reflections)&.keys # include associations if any, without N+1
       data = data.includes(includes) if includes.present? && data.respond_to?(:includes)

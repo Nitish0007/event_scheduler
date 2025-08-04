@@ -19,7 +19,12 @@ class Api::V1::BaseController < ApplicationController
     command = command_klass(:show).new(params, @base_klass, current_user, options)
     result = command.run
 
-    render_json(result[:data], :ok, result[:meta_data])
+    render_json(@base_klass, result, :ok)
+  rescue BaseCommand::CommandError => e
+    render_error(e.error_message, e.status_code)
+  rescue => e
+    Rails.logger.error("Error in show action: #{e.message}")
+    render_error("Internal server error", :internal_server_error)
   end
 
   def create

@@ -1,3 +1,2 @@
 class EventsController < BaseController
-
 end

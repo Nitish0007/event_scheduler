@@ -13,8 +13,8 @@ class Booking::Create < CreateCommand
         resource = @klass.new(resource_params) # create booking with pending status
         if resource.save
           return {
-            data: resource,
-            message: "Your Request is being processed you will get an email on booking status"
+            message: "Your Request is being processed you will get an email on booking status",
+            booking_id: resource.id
           }
         end
       end

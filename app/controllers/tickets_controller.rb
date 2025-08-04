@@ -1,0 +1,2 @@
+class TicketsController < BaseController
+end

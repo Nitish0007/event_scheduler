@@ -1,7 +1,7 @@
+require 'sidekiq/web'
+require 'sidekiq/cron/web'
 Rails.application.routes.draw do
-  require 'sidekiq/web'
   mount Sidekiq::Web => '/sidekiq'
-  
 
   # devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

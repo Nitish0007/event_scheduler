@@ -1,0 +1,3 @@
+:queues:
+  - process_pending_bookings
+  - default

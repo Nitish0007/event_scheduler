@@ -20,7 +20,7 @@
             <tr class="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-200">
               <% columns.each do |attribute, label| %>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  <%= link_to resource.send(attribute), "/users/#{resource.user_id}/#{klass.name.pluralize.underscore}/#{resource.id}" %>
+                  <%= link_to resource.send(attribute), show_link(actions[:show][:path], resource.id) %>
                 </td>
               <% end %>
             </tr>

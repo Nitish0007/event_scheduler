@@ -1,0 +1,19 @@
+<%= render partial: "shared/index_page", 
+  locals: { 
+    data: @bookings, 
+    klass: Booking, 
+    columns: {
+      id: "Booking ID",
+      quantity: "Ticket Count",
+      total_amount: "Total Amount",
+      status: "Booking Status",
+      created_at: "Created At"
+    },
+    actions: {
+      show: {
+        path: "/users/#{current_user.id}/bookings/:id"
+      }
+    }
+
+  }
+%>

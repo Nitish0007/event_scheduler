@@ -1,0 +1,19 @@
+<%= render partial: "shared/index_page", 
+  locals: { 
+    data: @tickets, 
+    klass: Ticket, 
+    columns: {
+      ticket_type: "Ticket Type",
+      price_per_ticket: "Ticket Price",
+      available_count: "Available Count",
+      booked_ticket_count: "Booked Count",
+      tickets_count: "Total Count",
+      created_at: "Created At"
+    },
+    actions: {
+      show: {
+        path: "/users/#{current_user.id}/tickets/:id"
+      }
+    }
+  }
+%>

@@ -1,10 +1,20 @@
 <%= render partial: "shared/index_page", 
-  locals: { data: @events, klass: Event, columns: {
-    event_title: "Event Title",
-    event_date: "Event Date",
-    event_venue: "Event Venue",
-    tickets_count: "Total Tickets",
-    created_at: "Created At",
-    updated_at: "Updated At"
-  } }
+  locals: { 
+    data: @events, 
+    klass: Event, 
+    columns: {
+      event_title: "Event Title",
+      event_date: "Event Date",
+      event_venue: "Event Venue",
+      tickets_count: "Total Tickets",
+      created_at: "Created At",
+      updated_at: "Updated At"
+    },
+    actions: {
+      show: {
+        path: "/users/#{current_user.id}/events/:id"
+      }
+    }
+
+  }
 %>

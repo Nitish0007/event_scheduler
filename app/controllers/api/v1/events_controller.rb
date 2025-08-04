@@ -1,14 +1,14 @@
 class Api::V1::EventsController < Api::V1::BaseController
   before_action :allow_organizer_only, only: [:create, :update]
 
-  def show
-    event = Event.find_by_id(params[:id])
-    if event.present?
-      render json: {data: event.as_json(include: [:tickets])}, status: :ok
-    else
-      render json: {errors: ["event not found"]}, status: :not_found
-    end
-  end
+  # def show
+  #   event = Event.find_by_id(params[:id])
+  #   if event.present?
+  #     render json: {data: event.as_json(include: [:tickets])}, status: :ok
+  #   else
+  #     render json: {errors: ["event not found"]}, status: :not_found
+  #   end
+  # end
 
   # def create
   #   event = Event.new(create_params)
