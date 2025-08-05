@@ -45,22 +45,32 @@ class ApplicationController < ActionController::Base
 	end
 
 	def organizer_user?
-		@current_user.organizer?
+		current_user.organizer?
 	end
 
 	def customer_user?
-		@current_user.customer?
+		current_user.customer?
 	end
 
 	def allow_organizer_only
 		if !organizer_user?
-			render json: { message: "This action is protected, you don't have permission to perform this action" }, status: :unauthorized
+			flash[:alert] = "This action is protected, you don't have permission to perform this action"
+			if is_api_request?
+				render json: { message: "This action is protected, you don't have permission to perform this action" }, status: :unauthorized
+			else
+				redirect_to dashboard_path
+			end
 		end
 	end
 
 	def allow_customer_only
 		if !customer_user?
-			render json: { message: "This action is protected, you don't have permission to perform this action" }, status: :unauthorized
+			flash[:alert] = "This action is protected, you don't have permission to perform this action"
+			if is_api_request?
+				render json: { message: "This action is protected, you don't have permission to perform this action" }, status: :unauthorized
+			else
+				redirect_to dashboard_path
+			end
 		end
 	end
 

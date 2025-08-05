@@ -12,9 +12,9 @@ class IndexCommand < BaseCommand
         meta_data: meta_data(resources)
       }
     rescue BaseCommand::CommandError => e
-      raise e
+      raise e.message
     rescue => e
-      raise e
+      raise e.message
     end
   end
 

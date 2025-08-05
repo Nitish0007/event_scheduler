@@ -1,0 +1,21 @@
+<%= render partial: 'shared/form', 
+  locals: { 
+    form_resource: @event, 
+    form_submission_path: "/users/#{current_user.id}/events", 
+    submit_button_title: "Create Event",
+    form_method: :post,
+    form_title: "Create Event",
+    form_fields: [
+      { type: "hidden", name: "user_id", value: current_user.id },
+      { type: "text", label: "Event Title", name: "event_title" },
+      { type: "text", label: "Event Venue", name: "event_venue" },
+      { type: "datetime", label: "Event Date & Time", name: "event_date", options: {min_date: Date.today, max_date: Date.today + 1.year, min_time: Time.now} }
+    ],
+    actions: {
+      back: {
+        title: "Back",
+        path: "/users/#{current_user.id}/events"
+      }
+    }
+  }
+%>

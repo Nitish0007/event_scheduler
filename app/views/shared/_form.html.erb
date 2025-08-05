@@ -1,0 +1,158 @@
+<div class="min-h-screen bg-white">
+  <!-- Breadcrumb Navigation -->
+  <div class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-4">
+        <nav class="flex" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-4">
+            <li>
+              <%= link_to form_resource.class.name.titleize, "#", class: "text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200" %>
+            </li>
+            <li>
+              <div class="flex items-center">
+                <svg class="flex-shrink-0 h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+                <span class="ml-4 text-sm font-medium text-gray-500">
+                  <%= form_resource.new_record? ? "New #{form_resource.class.name.titleize}" : "Edit #{form_resource.class.name.titleize}" %>
+                </span>
+              </div>
+            </li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Indicator -->
+  <!-- div class="bg-white shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="py-6">
+        <div class="flex items-center space-x-4">
+          <div class="flex items-center">
+            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+              <span class="text-white text-sm font-semibold">1</span>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-blue-600">Details</p>
+            </div>
+          </div>
+          <div class="flex-1 h-0.5 bg-gray-200"></div>
+          <div class="flex items-center">
+            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <span class="text-gray-500 text-sm font-semibold">2</span>
+            </div>
+            <div class="ml-3">
+              <p class="text-sm font-medium text-gray-500">Review</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div -->
+
+  <!-- Main Content -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold text-gray-900">
+        <%= form_title || "#{form_resource.class.name.titleize} Details" %>
+      </h1>
+      <p class="mt-2 text-sm text-gray-600">
+        Enter the details of your <%= form_resource.class.name.downcase %>.
+      </p>
+    </div>
+
+    <%= form_for form_resource, url: form_submission_path, method: form_method, html: { class: "space-y-6" } do |f| %>
+      <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+        <!-- Form Fields -->
+        <div class="px-8 py-8 space-y-6">
+          <% form_fields.each do |field| %>
+            <div>
+              <% if field[:type] == "hidden" %>
+                <%= f.hidden_field field[:name], value: field[:value] %>
+              <% end %>
+              <% if field[:type] == "text" %>
+                <div class="relative">
+                  <%= f.label field[:label], class: "block text-sm font-semibold text-gray-700 mb-2" %>
+                  <%= f.text_field field[:name], class: "w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400" %>
+                  <% if field[:hint].present? %>
+                    <p class="mt-1 text-xs text-gray-500"><%= field[:hint] %></p>
+                  <% end %>
+                </div>
+              <% elsif field[:type] == "number" %>
+                <div class="relative">
+                  <%= f.label field[:label], class: "block text-sm font-semibold text-gray-700 mb-2" %>
+                  <%= f.number_field field[:name], class: "w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 placeholder-gray-400" %>
+                </div>
+              <% elsif field[:type] == "date" %>
+                <div class="relative">
+                  <%= f.label field[:label], class: "block text-sm font-semibold text-gray-700 mb-2" %>
+                  <%= f.date_field field[:name], class: "w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900" %>
+                </div>
+              <% elsif field[:type] == "datetime" %>
+                <% min_date = field.dig(:options, :min_date) %>
+                <% max_date = field.dig(:options, :max_date) %>
+                <% min_time = field.dig(:options, :min_time) %>
+                <% max_time = field.dig(:options, :max_time) %>
+                <% input_options = {
+                    class: "w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900"
+                  }
+                %>
+                <% input_options[:min] = min_date if min_date.present? %>
+                <% input_options[:max] = max_date if max_date.present? %>
+                <% input_options[:min] = min_time.strftime("%H:%M") if min_time.present? %>
+                <% input_options[:max] = max_time.strftime("%H:%M") if max_time.present? %>
+                <div class="relative">
+                  <%= f.label field[:label], class: "block text-sm font-semibold text-gray-700 mb-2" %>
+                  <%= f.datetime_field field[:name], input_options %>
+                </div>
+              <% elsif field[:type] == "time" %>
+                <div class="relative">
+                  <%= f.label field[:label], class: "block text-sm font-semibold text-gray-700 mb-2" %>
+                  <%= f.time_field field[:name], class: "w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900" %>
+                </div>
+              <% elsif field[:type] == "select" %>
+                <div class="relative">
+                  <%= f.label field[:label], class: "block text-sm font-semibold text-gray-700 mb-2" %>
+                  <div class="relative">
+                    <%= f.select field[:name], field[:options], {}, { class: "w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 appearance-none" } %>
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              <% elsif field[:type] == "boolean" %>
+                <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
+                  <%= f.check_box field[:name], class: "h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                  <%= f.label field[:label], class: "text-sm font-semibold text-gray-700" %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Information Message -->
+      <div class="flex items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <svg class="flex-shrink-0 h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        <p class="ml-3 text-sm text-blue-700">
+          <%= form_resource.new_record? ? "Form is in draft mode, please review before saving." : "Review your changes before updating." %>
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-between pt-6">
+        <div>
+          <%= link_to actions[:back][:title], actions[:back][:path], class: "inline-flex items-center px-6 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200" %>
+        </div>
+        <div class="flex space-x-3">
+          <%= f.submit submit_button_title, class: "inline-flex items-center px-6 py-2 border border-transparent rounded-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 shadow-sm" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

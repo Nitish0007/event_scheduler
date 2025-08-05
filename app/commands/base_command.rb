@@ -3,13 +3,12 @@ class BaseCommand
   include FieldsValidator
   
   class CommandError < StandardError
-    attr_accessor :error_message, :status_code
+    attr_accessor :message, :status_code
 
     def initialize(error)
-      @error_message = error[:message]
+      @message = error[:message]
       @status_code = error[:status_code]
     end
-    
   end
 
   def initialize(params, klass, user, options = {})

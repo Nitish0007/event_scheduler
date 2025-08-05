@@ -1,5 +1,4 @@
 class CreateCommand < BaseCommand
-
   def run
     begin
       resource = @klass.new(resource_params)
@@ -14,11 +13,11 @@ class CreateCommand < BaseCommand
         raise_bad_request_error(resource.errors.full_messages.join(", "), :unprocessable_entity)
       end
     rescue BaseCommand::CommandError => e
-      raise e
+      raise e.message
     rescue ActiveRecord::RecordInvalid => e
       raise_bad_request_error(e.message, :unprocessable_entity)
     rescue => e
-      raise e
+      raise e.message
     end
   end
 

@@ -1,8 +1,4 @@
 class Sidebar
-  COMMON_SIDEBAR_ITEMS = ["events", "tickets"].freeze
-  CUSTOMER_SIDEBAR_ITEMS =  COMMON_SIDEBAR_ITEMS + [].freeze
-  ORGANIZER_SIDEBAR_ITEMS =  COMMON_SIDEBAR_ITEMS + ["bookings"].freeze
-
   def self.sidebar_items(current_user)
     current_user.role.to_s == "organizer" ? organizer_sidebar_items(current_user) : customer_sidebar_items(current_user)
   end

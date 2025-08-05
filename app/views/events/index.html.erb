@@ -1,3 +1,21 @@
+<% if current_user.organizer? %>
+  <% actions = {
+    new: {
+      title: "New Event",
+      path: "/users/#{current_user.id}/events/new"
+    },
+    show: {
+      path: "/users/#{current_user.id}/events/:id"
+    }
+  } %>
+<% else %>
+  <% actions = {
+    show: {
+      path: "/users/#{current_user.id}/events/:id"
+    }
+  } %>
+<% end %>
+
 <%= render partial: "shared/index_page", 
   locals: { 
     data: @events, 
@@ -10,11 +28,6 @@
       created_at: "Created At",
       updated_at: "Updated At"
     },
-    actions: {
-      show: {
-        path: "/users/#{current_user.id}/events/:id"
-      }
-    }
-
+    actions: actions
   }
 %>
