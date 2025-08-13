@@ -81,3 +81,10 @@ gem "tailwindcss-rails"
 
 gem 'sidekiq-cron'
 
+# Payment processing
+gem 'stripe'
+gem 'stripe_event'
+gem 'pay'
+
+gem 'httparty'
+

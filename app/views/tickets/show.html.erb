@@ -15,8 +15,8 @@
   <% actions = {
     book_ticket: {
       title: "Book Ticket",
-      request_type: "POST",
-      path: "/users/#{current_user.id}/tickets/#{@ticket.id}/bookings"
+      request_type: "GET",
+      path: "/users/#{current_user.id}/tickets/#{@ticket.id}/bookings/new"
     },
     back: {
       title: "Back",
@@ -31,6 +31,7 @@
     resource: @ticket, 
     klass: Ticket, 
     columns: {
+      event_title: "Event Title",
       ticket_type: "Ticket Type",
       price_per_ticket: "Ticket Price",
       available_count: "Available Count",

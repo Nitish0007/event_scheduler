@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_01_181940) do
+ActiveRecord::Schema[7.1].define(version: 2025_08_10_062626) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -35,6 +35,28 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_01_181940) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_events_on_user_id"
+  end
+
+  create_table "payments", force: :cascade do |t|
+    t.bigint "booking_id", null: false
+    t.bigint "user_id", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.decimal "fee", precision: 10, scale: 2, default: "0.0"
+    t.string "currency", default: "usd"
+    t.integer "status", default: 0
+    t.integer "payment_method", default: 0
+    t.string "reference_number", null: false
+    t.string "stripe_payment_intent_id"
+    t.string "stripe_charge_id"
+    t.jsonb "metadata", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["booking_id"], name: "index_payments_on_booking_id"
+    t.index ["created_at"], name: "index_payments_on_created_at"
+    t.index ["reference_number"], name: "index_payments_on_reference_number", unique: true
+    t.index ["status"], name: "index_payments_on_status"
+    t.index ["stripe_payment_intent_id"], name: "index_payments_on_stripe_payment_intent_id", unique: true
+    t.index ["user_id"], name: "index_payments_on_user_id"
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -67,4 +89,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_01_181940) do
   add_foreign_key "bookings", "tickets"
   add_foreign_key "bookings", "users"
   add_foreign_key "events", "users"
+  add_foreign_key "payments", "bookings"
+  add_foreign_key "payments", "users"
 end

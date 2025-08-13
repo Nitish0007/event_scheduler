@@ -1,0 +1,248 @@
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-blue-600 px-8 py-6">
+    <h1 class="text-3xl font-bold text-white">Complete Payment</h1>
+    <p class="text-blue-100 text-lg mt-2">Event: <%= @booking.event_title %></p>
+  </div>
+  
+  <div class="max-w-4xl mx-auto px-8 py-8">
+    <div class="bg-white rounded-lg p-8 shadow-sm border">
+      <div class="mb-8">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Booking Summary</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 text-lg">Ticket Type:</span>
+              <span class="font-medium text-lg"><%= @booking.ticket_type %></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 text-lg">Quantity:</span>
+              <span class="font-medium text-lg"><%= @booking.quantity %></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 text-lg">Price per ticket:</span>
+              <span class="font-medium text-lg">₹<%= '%.2f' % @booking.ticket.price_per_ticket %></span>
+            </div>
+          </div>
+          <div class="flex justify-center items-center">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-blue-600">₹<%= '%.2f' % @booking.total_amount %></div>
+              <div class="text-gray-600 text-lg">Total Amount</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <hr class="my-8">
+      
+      <%= form_with model: @payment, url: booking_payments_path(@booking), local: false, class: "space-y-6", id: "payment-form" do |f| %>
+        <div>
+          <label class="block text-lg font-medium text-gray-700 mb-4">Payment Method</label>
+          <div class="space-y-3">
+            <% Payment.payment_methods.each do |key, value| %>
+              <label class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                <%= f.radio_button :payment_method, key, checked: (key == 'stripe' ? true : false), class: "h-5 w-5 text-blue-600", data: { action: "change->payment#toggleFields" } %>
+                <span class="ml-3 text-lg text-gray-700"><%= value %></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+        
+        <!-- Stripe Card Details -->
+        <div id="stripe-fields" class="payment-method-fields">
+          <label class="block text-lg font-medium text-gray-700 mb-4">Card Details</label>
+          <div id="card-element" class="border border-gray-300 rounded-lg p-4 bg-white">
+            <!-- Stripe Elements will be inserted here -->
+          </div>
+        </div>
+        
+        <!-- UPI Payment Fields -->
+        <div id="upi-fields" class="payment-method-fields hidden">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-lg font-medium text-gray-700 mb-2">UPI ID</label>
+              <input type="text" name="payment[upi_id]" placeholder="example@upi" class="w-full border border-gray-300 rounded-lg p-4 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-lg font-medium text-gray-700 mb-2">Mobile Number</label>
+              <input type="tel" name="payment[mobile_number]" placeholder="+91 98765 43210" class="w-full border border-gray-300 rounded-lg p-4 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            </div>
+          </div>
+        </div>
+        
+        <div id="card-errors" class="text-red-600 text-lg hidden p-4 bg-red-50 border border-red-200 rounded-lg"></div>
+        
+        <div class="pt-6">
+          <button type="submit" id="submit-button" class="w-full bg-blue-600 text-white text-xl font-semibold py-4 px-8 rounded-lg hover:bg-blue-700 transition-colors duration-200">
+            Pay Now
+          </button>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const stripe = Stripe('<%= @stripe_public_key %>');
+    const elements = stripe.elements();
+    
+    const card = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#424770',
+          '::placeholder': {
+            color: '#aab7c4',
+          },
+        },
+        invalid: {
+          color: '#9e2146',
+        },
+      },
+    });
+    
+    card.mount('#card-element');
+    
+    const form = document.getElementById('payment-form');
+    const submitButton = document.getElementById('submit-button');
+    const cardErrors = document.getElementById('card-errors');
+    
+    // Function to toggle payment method fields
+    function togglePaymentFields() {
+      const selectedMethod = document.querySelector('input[name="payment[payment_method]"]:checked').value;
+      const allFields = document.querySelectorAll('.payment-method-fields');
+      
+      // Hide all fields first
+      allFields.forEach(field => field.classList.add('hidden'));
+      
+      // Show the selected method's fields
+      const selectedFields = document.getElementById(selectedMethod + '-fields');
+      if (selectedFields) {
+        selectedFields.classList.remove('hidden');
+      }
+    }
+    
+    // Add event listeners to payment method radio buttons
+    document.querySelectorAll('input[name="payment[payment_method]"]').forEach(radio => {
+      radio.addEventListener('change', togglePaymentFields);
+    });
+    
+    // Initialize fields on page load
+    togglePaymentFields();
+    
+    card.addEventListener('change', function(event) {
+      if (event.error) {
+        cardErrors.textContent = event.error.message;
+        cardErrors.classList.remove('hidden');
+      } else {
+        cardErrors.classList.add('hidden');
+        cardErrors.textContent = '';
+      }
+    });
+    
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      submitButton.disabled = true;
+      submitButton.textContent = 'Processing...';
+      
+      const selectedMethod = document.querySelector('input[name="payment[payment_method]"]:checked').value;
+      
+      // Handle different payment methods
+      if (selectedMethod === 'stripe') {
+        // Stripe payment logic
+        handleStripePayment();
+      } else {
+        // Handle other payment methods
+        handleOtherPaymentMethods(selectedMethod);
+      }
+    });
+    
+    function handleStripePayment() {
+      // Create payment on server first
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+          payment: {
+            payment_method: 'stripe'
+          }
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        // Confirm payment with Stripe
+        return stripe.confirmCardPayment(data.client_secret, {
+          payment_method: {
+            card: card,
+            billing_details: {
+              name: '<%= current_user.first_name %> <%= current_user.last_name %>',
+              email: '<%= current_user.email %>'
+            }
+          }
+        });
+      })
+      .then(result => {
+        if (result.error) {
+          cardErrors.textContent = result.error.message;
+          cardErrors.classList.remove('hidden');
+          submitButton.disabled = false;
+          submitButton.textContent = 'Pay Now';
+        } else {
+          // Payment successful, redirect to success page
+          window.location.href = '<%= "/users/#{current_user.id}/bookings/#{@booking.id}" %>';
+        }
+      })
+      .catch(error => {
+        cardErrors.textContent = error.message;
+        cardErrors.classList.remove('hidden');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Pay Now';
+      });
+    }
+    
+    function handleOtherPaymentMethods(method) {
+      // Collect form data for other payment methods
+      const formData = new FormData();
+      formData.append('payment[payment_method]', method);
+      
+      // Add method-specific fields
+      if (method === 'upi') {
+        const upiId = document.querySelector('input[name="payment[upi_id]"]').value;
+        const mobileNumber = document.querySelector('input[name="payment[mobile_number]"]').value;
+        formData.append('payment[upi_id]', upiId);
+        formData.append('payment[mobile_number]', mobileNumber);
+      }
+      
+      // Submit the form
+      fetch(form.action, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        // Success - redirect to success page
+        window.location.href = '<%= "/users/#{current_user.id}/bookings/#{@booking.id}" %>';
+      })
+      .catch(error => {
+        cardErrors.textContent = error.message;
+        cardErrors.classList.remove('hidden');
+        submitButton.disabled = false;
+        submitButton.textContent = 'Pay Now';
+      });
+    }
+  });
+</script> 

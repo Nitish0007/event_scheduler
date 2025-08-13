@@ -1,34 +1,43 @@
 class Booking < ApplicationRecord
   belongs_to :user
   belongs_to :ticket
-  enum status: { pending: 0, confirmed: 1, cancelled: 2, failed: 3 }
+  has_many :payments, dependent: :destroy
+  
+  enum status: { payment_pending: 0, confirmed: 1, cancelled: 2, failed: 3, payment_failed: 4, payment_completed: 5 }
 
-  # before_save :check_availability
-  # before_save :update_booked_tickets_count
-  # before_destroy :update_booked_tickets_count_on_cancel
-  # after_commit :send_confirmation_notification
+  validates :quantity, presence: true, numericality: { greater_than: 0 }
+  
+  def total_amount
+    quantity * ticket.price_per_ticket
+  end
+  
+  def payment_required?
+    successful_payment.nil?
+  end
+  
+  def can_cancel?
+    %w[payment_pending payment_failed].include?(status)
+  end
+  
+  def payment_status
+    return 'unpaid' if payment.nil?
+    payment.status
+  end
 
+  def successful_payment
+    payments.find_by(status: :completed)
+  end
 
-  # def send_confirmation_notification
-  #   BookingConfirmationJob.perform_async(user_id, ticket_id)
-  # end
+  def payment
+    successful_payment || payments.order(created_at: :desc).first
+  end
 
-  # def check_availability
-  #   available_tickets = ticket.tickets_count - ticket.booked_ticket_count
+  def event_title
+    ticket.event.event_title
+  end
 
-  #   if available_tickets < self.quantity
-  #     errors.add(:base, "Not enough tickets available, try with less quantity")
-  #     throw(:abort)
-  #   end
-  # end
-
-  # def update_booked_tickets_count
-  #   updated_booked_tickets_count = ticket.booked_ticket_count + self.quantity
-  #   ticket.update_column(:booked_ticket_count, updated_booked_tickets_count)
-  # end
-
-  # def update_booked_tickets_count_on_cancel
-  #   BookingCancellationJob.perform_async(self.id)
-  # end
+  def ticket_type
+    ticket.ticket_type
+  end
 
 end

@@ -1,0 +1,22 @@
+<%= render partial: 'shared/form', 
+  locals: { 
+    form_resource: @ticket, 
+    form_submission_path: "/users/#{current_user.id}/events/#{params[:event_id]}/tickets", 
+    submit_button_title: "Create Ticket",
+    form_method: :post,
+    form_title: "Create Ticket",  
+    form_fields: [
+      { type: "hidden", name: "user_id", value: current_user.id },
+      { type: "hidden", name: "event_id", value: params[:event_id] },
+      { type: "text", label: "Ticket Type", name: "ticket_type" },
+      { type: "number", label: "Price Per Ticket", name: "price_per_ticket" },
+      { type: "number", label: "Total Tickets", name: "tickets_count" }
+    ],
+    actions: {
+      back: {
+        title: "Back",
+        path: "/users/#{current_user.id}/events/#{params[:event_id]}"
+      }
+    }
+  }
+%>

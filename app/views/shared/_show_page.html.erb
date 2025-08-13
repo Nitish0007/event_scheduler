@@ -16,10 +16,20 @@
         <div class="flex space-x-3">
           <% actions.each do |action_name, action_config| %>
             <% if action_name != :back %>
-              <%= link_to action_config[:path], 
-                  method: action_config[:request_type] == "POST" ? :post : :get,
-                  class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
-                <%= action_config[:title] %>
+              <% if action_config[:modal] %>
+                <!-- Modal Trigger Button -->
+                <button type="button" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        onclick="openModal('<%= action_config[:modal][:target] %>')">
+                  <%= action_config[:title] %>
+                </button>
+              <% else %>
+                <!-- Regular Link Button -->
+                <%= link_to action_config[:path], 
+                    method: action_config[:request_type] == "POST" ? :post : :get,
+                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+                  <%= action_config[:title] %>
+                <% end %>
               <% end %>
             <% end %>
           <% end %>
@@ -156,3 +166,16 @@
     </div>
   </div>
 </div>
+
+<!-- Render modals if any action has modal configuration -->
+<% actions.each do |action_name, action_config| %>
+  <% if action_config[:modal] && action_config[:modal][:content] %>
+    <%= render_modal_box(
+      id: action_config[:modal][:target],
+      title: action_config[:modal][:title],
+      actions: action_config[:modal][:actions] || modal_actions(:close)
+    ) do %>
+      <%= render partial: action_config[:modal][:content] %>
+    <% end %>
+  <% end %>
+<% end %>

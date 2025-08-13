@@ -3,12 +3,13 @@ module JsonHandler
     if result.present?
       data = result[:data].present? ? serialize_data(result[:data], klass) : serialize_data(result, klass)
       meta = result[:meta_data] if result[:meta_data].present?
+      message = result[:message] if result[:message].present?
     end
 
     if meta.present?
-      render json: { data: data, meta_data: meta }, status: status
+      render json: { data: data, meta_data: meta, message: message }, status: status
     else
-      render json: { data: data }, status: status
+      render json: { data: data, message: message }, status: status
     end
   end
   

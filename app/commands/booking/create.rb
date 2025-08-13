@@ -9,12 +9,13 @@ class Booking::Create < CreateCommand
         if tickets.blank? || tickets.available_count < resource_params[:quantity].to_i
           raise_bad_request_error("'#{@params[:booking][:ticket_type]}' tickets not available for this event, try with less quantity or different ticket type", :unprocessable_entity)
         end
-        resource_params.merge!(ticket_id: tickets&.id, total_amount: tickets&.price_per_ticket * resource_params[:quantity].to_i)
+        resource_params.merge!(ticket_id: tickets&.id, total_amount: tickets&.price_per_ticket * resource_params[:quantity].to_i, status: :payment_pending)
         resource = @klass.new(resource_params) # create booking with pending status
         if resource.save
+          resource.reload
           return {
-            message: "Your Request is being processed you will get an email on booking status",
-            booking_id: resource.id
+            message: "Your booking request is created, please proceed to payment and complete the process",
+            data: resource
           }
         end
       end

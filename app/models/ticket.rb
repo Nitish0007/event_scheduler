@@ -2,11 +2,22 @@ class Ticket < ApplicationRecord
   belongs_to :event
   has_many :bookings
 
-  validates :ticket_type, presence: true, inclusion: { in: %w[basic vip premium general free] }, uniqueness: { scope: :event_id, message: "failed to create ticket, ticket type already exists for this event" }
+  validates :ticket_type, presence: true, uniqueness: { scope: :event_id, message: "failed to create ticket, ticket type already exists for this event" }
+  validates :price_per_ticket, presence: true, numericality: { greater_than: 0 }
 
   after_commit :update_total_tickets_count_of_event
 
+  after_create :set_available_count
+
+  def event_title
+    event.event_title
+  end
+
   private
+  def set_available_count
+    self.available_count = self.tickets_count
+  end
+
   def update_total_tickets_count_of_event
     Event.update_total_tickets_count_for_event event_id
   end

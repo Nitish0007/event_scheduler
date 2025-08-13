@@ -34,7 +34,7 @@ class Event < ApplicationRecord
   end
 
   def process_pending_bookings
-    pending_bookings = Booking.includes(:ticket).where(status: "pending", ticket: { event_id: self.id })
+    pending_bookings = Booking.includes(:ticket).where(status: "payment_completed", ticket: { event_id: self.id })
     booking_ids_to_be_confirmed = []
     booking_ids_to_be_failed = []
     available_count_for_each_type_of_ticket = Hash.new(0)

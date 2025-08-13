@@ -1,0 +1,36 @@
+<div class="space-y-4">
+  <div class="bg-gray-50 rounded-lg p-4">
+    <h4 class="font-medium text-gray-900 mb-2">Event Details</h4>
+    <div class="text-sm text-gray-600 space-y-1">
+      <p><strong>Event:</strong> <%= @event.event_title %></p>
+      <p><strong>Date:</strong> <%= @event.event_date.strftime("%B %d, %Y at %I:%M %p") %></p>
+      <p><strong>Venue:</strong> <%= @event.event_venue %></p>
+    </div>
+  </div>
+
+  <div class="space-y-3">
+    <h4 class="font-medium text-gray-900">Available ticket types</h4>
+    <div class="grid gap-4">
+      <% @event.tickets.each do |ticket| %>
+        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+          <div class="flex items-center justify-between">
+            <div class="flex-1">
+              <h5 class="font-medium text-gray-900"><%= ticket.ticket_type %></h5>
+              <p class="text-sm text-gray-600">₹<%= inr_currency(ticket.price_per_ticket) %> per ticket</p>
+              <p class="text-xs text-gray-500"><%= ticket.available_count %> tickets available</p>
+            </div>
+            <div class="flex items-center">
+              <%= link_to "/users/#{current_user.id}/tickets/#{ticket.id}/bookings/new", method: :get,
+                  class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" do %>
+                Proceed
+                <svg class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div> 

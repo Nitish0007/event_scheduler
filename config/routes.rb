@@ -14,6 +14,9 @@ Rails.application.routes.draw do
   # root "posts#index"
   root "dashboard#welcome", as: :welcome
 
+  # Stripe webhooks
+  post 'webhooks/stripe', to: 'webhooks/stripe#create'
+
   # V1 API Routes
   namespace :api do
     namespace :v1 do
@@ -44,7 +47,11 @@ Rails.application.routes.draw do
         resources :customers
         resources :events
         resources :tickets
-        resources :bookings
+        resources :bookings do
+          resources :payments, only: [:new, :create, :show]
+          get 'payments/success', to: 'payments#success', as: :payment_success
+          get 'payments/cancel', to: 'payments#cancel', as: :payment_cancel
+        end
       end
     end
   end
@@ -79,9 +86,17 @@ Rails.application.routes.draw do
       
       resources :organizers, only: [:index]
       resources :customers, only: [:index]
-      resources :events
-      resources :tickets
-      resources :bookings
+      resources :events do
+        resources :tickets, only: [:new, :create]
+      end
+      resources :tickets do
+        resources :bookings, only: [:new, :create]
+      end
+      resources :bookings do
+        resources :payments, only: [:new, :create, :show]
+        get 'payments/success', to: 'payments#success', as: :payment_success
+        get 'payments/cancel', to: 'payments#cancel', as: :payment_cancel
+      end
     end
   end
 

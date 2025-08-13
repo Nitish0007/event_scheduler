@@ -2,8 +2,8 @@
   <% actions = {
     create_ticket: {
       title: "Create Ticket",
-      request_type: "POST",
-      path: "/users/#{current_user.id}/events/#{@event.id}/tickets"
+      request_type: "GET",
+      path: "/users/#{current_user.id}/events/#{@event.id}/tickets/new"
     },
     edit_event: {
       title: "Edit Event",
@@ -20,8 +20,13 @@
  <% actions = {
     book_ticket: {
       title: "Book Ticket",
-      request_type: "POST",
-      path: "/users/#{current_user.id}/events/#{@event.id}/bookings"
+      request_type: "GET",
+      modal: {
+        target: "select-tickets-#{@event.id}",
+        title: "Select ticket to book",
+        content: "events/ticket_selection_modal",
+        actions: modal_actions(:close)
+      }
     },
     back: {
       title: "Back",
@@ -30,7 +35,6 @@
     }
   } %>
 <% end %>
-
 
 <%= render partial: 'shared/show_page', 
   locals: {
