@@ -29,7 +29,7 @@ class Booking < ApplicationRecord
   end
 
   def payment
-    successful_payment || payments.order(created_at: :desc).first
+    successful_payment || payments.find_by(status: :pending)
   end
 
   def event_title
@@ -38,6 +38,18 @@ class Booking < ApplicationRecord
 
   def ticket_type
     ticket.ticket_type
+  end
+
+  def payable_payment
+    if payment_required?
+      payments.find_by(status: :pending)
+    else
+      payment
+    end
+  end
+
+  def payment_id
+    payable_payment&.id
   end
 
 end

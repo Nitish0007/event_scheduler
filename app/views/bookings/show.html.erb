@@ -142,7 +142,7 @@
           <h3 class="text-xl font-semibold text-gray-800 mb-6">Actions</h3>
           <div class="space-y-4">
             <% if @booking.payment_required? %>
-              <%= link_to "Complete Payment", "/users/#{current_user.id}/bookings/#{@booking.id}/payments/new", 
+              <%= link_to "Complete Payment", "/users/#{current_user.id}/bookings/#{@booking.id}/payments/#{@booking.payable_payment&.id}", 
                   class: "w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-base font-medium flex items-center justify-center" %>
             <% end %>
             
@@ -160,4 +160,25 @@
       </div>
     </div>
   </div>
+
+  <%= render partial: "shared/index_page", 
+    locals: { 
+      data: @booking.payments, 
+      klass: Payment, 
+      title: "Payments",
+      columns: {
+        id: "Payment ID",
+        amount: "Amount",
+        reference_number: "Reference Number",
+        payment_method: "Payment Method",
+        status: "Payment Status",
+        created_at: "Created At"
+      },
+      actions: {
+        show: {
+          path: "/users/#{current_user.id}/bookings/#{@booking.id}/payments/:id"
+        }
+      }
+    }
+  %>
 </div>

@@ -7,7 +7,7 @@ class Ticket < ApplicationRecord
 
   after_commit :update_total_tickets_count_of_event
 
-  after_create :set_available_count
+  before_save :set_available_count
 
   def event_title
     event.event_title
@@ -15,7 +15,20 @@ class Ticket < ApplicationRecord
 
   private
   def set_available_count
-    self.available_count = self.tickets_count
+    if self.new_record?
+      self.available_count = self.tickets_count
+    else
+      if self.tickets_count_changed?
+        if self.tickets_count.to_i < self.booked_ticket_count.to_i
+          errors.add(:tickets_count, "cannot be less than booked ticket count")
+          return false
+        elsif self.event.event_date < Time.zone.now
+          errors.add(:tickets_count, "cannot be updated for past event")
+          return false
+        end
+        self.available_count = self.available_count.to_i + self.tickets_count.to_i
+      end
+    end
   end
 
   def update_total_tickets_count_of_event

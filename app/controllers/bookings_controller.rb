@@ -16,7 +16,7 @@ class BookingsController < BaseController
     @booking = @result[:data]
     flash[:notice] = @result[:message]
     respond_to do |format|
-      format.html { redirect_to "/users/#{current_user.id}/bookings/#{@booking.id}/payments/new" if @booking.payment_required? }
+      format.html { redirect_to "/users/#{current_user.id}/bookings/#{@booking.id}/payments/#{@result[:payment_id]}" if @booking.payment_required? }
     end
   rescue BaseCommand::CommandError => e
     handle_error(e)

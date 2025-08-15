@@ -1,31 +1,17 @@
 class PaymentsController < BaseController
-  before_action :authenticate_user!
-  before_action :set_booking, only: [:new, :create, :show, :success, :cancel]
-  
-  def new
-    @payment = Payment.new(
-      booking_id: @booking.id,
-      user_id: current_user.id, 
-      amount: @booking.total_amount, 
-      currency: 'inr',
-      status: :pending,
-      payment_method: 0
-    )
-    @stripe_public_key = ENV['STRIPE_PUBLIC_KEY']
-  end
-  
-  def create
-    command = command_klass(:create).new(params, @base_klass, current_user, options)
+  # before_action :authenticate_user!
+  before_action :ensure_configured
+  before_action :set_booking, only: [:show, :update, :success, :cancel]
+
+  def update
+    command = command_klass(:update).new(params, @base_klass, current_user, options)
     @result = command.run
-    
-    if @result[:success]
-      render json: {
-        client_secret: @result[:client_secret],
-        payment_id: @result[:payment_id]
-      }
-    else
-      render json: { error: @result[:error] }, status: :unprocessable_entity
-    end
+    # if @result[:success]
+    #   flash[:success] = 'Payment is being processed.'
+    # else
+    #   flash[:alert] = 'Something went wrong'
+    # end
+    redirect_to booking_path(@result[:data])
   rescue BaseCommand::CommandError => e
     handle_error(e)
   rescue => e
@@ -33,8 +19,8 @@ class PaymentsController < BaseController
   end
   
   def show
-    @payment = @booking.payment
-    redirect_to new_booking_payment_path(@booking) if @payment.nil?
+    @payment = Payment.find(params[:id])
+    @stripe_public_key = Rails.configuration.stripe[:publishable_key]
   end
   
   def success
@@ -90,8 +76,8 @@ class PaymentsController < BaseController
       redirect_to root_path, alert: 'You are not authorized to access this booking.'
     end
   end
-  
-  def payment_params
-    params.require(:payment).permit(:payment_method)
+
+  def ensure_configured
+    StripeConfig.ensure_configured!
   end
 end 

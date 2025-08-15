@@ -5,16 +5,10 @@ class Webhooks::StripeController < ApplicationController
   before_action :verify_stripe_signature
   
   def create
-    # Ensure webhook secret is configured
-    unless ENV['STRIPE_WEBHOOK_SECRET'].present?
-      Rails.logger.error "STRIPE_WEBHOOK_SECRET is not configured"
-      return head :internal_server_error
-    end
-
     event = Stripe::Webhook.construct_event(
       request.body.read,
       request.headers['Stripe-Signature'],
-      ENV['STRIPE_WEBHOOK_SECRET']
+      Rails.configuration.stripe[:webhook_secret]
     )
     
     case event.type

@@ -48,7 +48,7 @@ Rails.application.routes.draw do
         resources :events
         resources :tickets
         resources :bookings do
-          resources :payments, only: [:new, :create, :show]
+          resources :payments, only: [:show, :update]
           get 'payments/success', to: 'payments#success', as: :payment_success
           get 'payments/cancel', to: 'payments#cancel', as: :payment_cancel
         end
@@ -93,7 +93,7 @@ Rails.application.routes.draw do
         resources :bookings, only: [:new, :create]
       end
       resources :bookings do
-        resources :payments, only: [:new, :create, :show]
+        resources :payments, only: [:show, :update]
         get 'payments/success', to: 'payments#success', as: :payment_success
         get 'payments/cancel', to: 'payments#cancel', as: :payment_cancel
       end

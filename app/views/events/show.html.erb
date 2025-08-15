@@ -1,41 +1,58 @@
-<% if current_user.organizer? %>
-  <% actions = {
-    create_ticket: {
-      title: "Create Ticket",
-      request_type: "GET",
-      path: "/users/#{current_user.id}/events/#{@event.id}/tickets/new"
-    },
-    edit_event: {
-      title: "Edit Event",
-      request_type: "GET",
-      path: "/users/#{current_user.id}/events/#{@event.id}/edit"
-    },
-    back: {
-      title: "Back",
-      request_type: "GET",
-      path: "/users/#{current_user.id}/events"
-    }
-  } %>
-<% else %>
- <% actions = {
-    book_ticket: {
-      title: "Book Ticket",
-      request_type: "GET",
-      modal: {
-        target: "select-tickets-#{@event.id}",
-        title: "Select ticket to book",
-        content: "events/ticket_selection_modal",
-        actions: modal_actions(:close)
-      }
-    },
-    back: {
-      title: "Back",
-      request_type: "GET",
-      path: "/users/#{current_user.id}/events"
-    }
-  } %>
+<% if @event.event_date < Time.zone.now %>
+  <div style="display: flex; align-items: center; background: #fff3cd; color: #856404; border: 1px solid #ffeeba; border-radius: 4px; padding: 10px 15px; margin-bottom: 20px;">
+    <span style="font-size: 1.2em; margin-right: 8px;" aria-label="Info" title="Event Expired">&#8505;</span>
+    <span>
+      <strong>Event Ended:</strong> This event has already taken place and is no longer open for editing or ticketing.
+    </span>
+  </div>
 <% end %>
 
+<!-- Defining actions for the show page -->
+<% if current_user.organizer? %>
+  <% if @event.event_date > Time.zone.now %>
+    <% actions = {
+      create_ticket: {
+        title: "Create Ticket",
+        request_type: "GET",
+        path: "/users/#{current_user.id}/events/#{@event.id}/tickets/new"
+      },
+      edit_event: {
+        title: "Edit Event",
+        request_type: "GET",
+        path: "/users/#{current_user.id}/events/#{@event.id}/edit"
+      }
+    } %>
+  <% else %>
+    <% actions = {} %>
+  <% end %>
+<% else %>
+  <% if @event.event_date > Time.zone.now %>
+    <% actions = {
+        book_ticket: {
+          title: "Book Ticket",
+          request_type: "GET",
+          modal: {
+            target: "select-tickets-#{@event.id}",
+            title: "Select ticket to book",
+            content: "events/ticket_selection_modal",
+            actions: modal_actions(:close)
+          }
+        }
+      } %>
+    <% else %>
+      <% actions = {} %>
+    <% end %>
+<% end %>
+
+<% actions.merge!({
+  back:{
+    title: "Back",
+    request_type: "GET",
+    path: "/users/#{current_user.id}/events"
+  }
+}) %>
+
+<!-- Rending the show page partial -->
 <%= render partial: 'shared/show_page', 
   locals: {
     resource: @event, 

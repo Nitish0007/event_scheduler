@@ -1,15 +1,15 @@
 class BookingSerializer < ApplicationSerializer
   attributes :id, :quantity, :user_id, :ticket_id, :total_amount, :status, 
-             :created_at, :updated_at, :payment_status, :can_cancel
+             :created_at, :updated_at
   
   belongs_to :ticket
-  has_one :payment
+  has_many :payments
   
-  def payment_status
-    object.payment_status
-  end
+  # def payment_status 
+  #   object.payments.last.status
+  # end
   
-  def can_cancel
-    object.can_cancel?
-  end
+  # def can_cancel
+  #   object.can_cancel?
+  # end
 end 

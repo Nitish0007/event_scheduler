@@ -1,0 +1,22 @@
+<%= render partial: 'shared/form', 
+  locals: { 
+    form_resource: @ticket, 
+    form_submission_path: "/users/#{current_user.id}/tickets/#{@ticket.id}", 
+    submit_button_title: "Update Ticket",
+    form_method: :put,
+    form_title: "Update Ticket",  
+    form_fields: [
+      { type: "hidden", name: "user_id", value: current_user.id },
+      { type: "hidden", name: "event_id", value: @ticket.event_id },
+      { type: "text", label: "Ticket Type", name: "ticket_type", value: @ticket.ticket_type },
+      { type: "number", label: "Price Per Ticket", name: "price_per_ticket", value: @ticket.price_per_ticket },
+      { type: "number", label: "Total Tickets", name: "tickets_count", value: @ticket.tickets_count }
+    ],
+    actions: {
+      back: {
+        title: "Back",
+        path: "/users/#{current_user.id}/events/#{params[:event_id]}"
+      }
+    }
+  }
+%>

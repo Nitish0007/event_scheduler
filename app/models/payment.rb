@@ -33,12 +33,25 @@ class Payment < ApplicationRecord
     return nil unless stripe_payment_intent_id.present?
     "https://dashboard.stripe.com/payments/#{stripe_payment_intent_id}"
   end
+
+  def self.create_stripe_payment_intent(payment)
+    payment_intent = Stripe::PaymentIntent.create(
+      amount: (payment.amount * 100).to_i,
+      currency: payment.currency,
+      payment_method: payment.payment_method,
+      metadata: {
+        booking_id: payment.booking_id,
+        user_id: payment.user_id
+      },
+      description: "Payment for event #{payment.booking.event_title}: #{payment.booking.quantity} #{payment.booking.ticket_type} ticket(s)"
+    )
+  end
   
   private
   
   def generate_reference_number
     loop do
-      self.reference_number = "PAY-#{SecureRandom.alphanumeric(8).upcase}"
+      self.reference_number = "esPAY-#{SecureRandom.alphanumeric(8).upcase}-#{Time.now.strftime('%Y%m%d%H%M%S%L%N')}"
       break unless Payment.exists?(reference_number: reference_number)
     end
   end

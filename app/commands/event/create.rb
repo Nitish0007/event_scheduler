@@ -1,3 +1,3 @@
-class Event::Create < CreateCommand
+ class Event::Create < CreateCommand
   
 end
