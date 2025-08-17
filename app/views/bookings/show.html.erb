@@ -142,8 +142,13 @@
           <h3 class="text-xl font-semibold text-gray-800 mb-6">Actions</h3>
           <div class="space-y-4">
             <% if @booking.payment_required? %>
-              <%= link_to "Complete Payment", "/users/#{current_user.id}/bookings/#{@booking.id}/payments/#{@booking.payable_payment&.id}", 
-                  class: "w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-base font-medium flex items-center justify-center" %>
+              <% if @booking.payment_processing.nil? %>
+                <%= link_to "Complete Payment", "/users/#{current_user.id}/bookings/#{@booking.id}/payments/new", 
+                    class: "w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors text-base font-medium flex items-center justify-center" %>
+              <% else %>
+                <%= link_to "Processing Payment", "/", 
+                    class: "w-full bg-gray-300 text-gray-700 px-6 py-3 rounded-lg transition-colors text-base font-medium flex items-center justify-center cursor-not-allowed" %>
+              <% end %>
             <% end %>
             
             <% if @booking.can_cancel? %>
@@ -173,12 +178,13 @@
         payment_method: "Payment Method",
         status: "Payment Status",
         created_at: "Created At"
-      },
-      actions: {
-        show: {
-          path: "/users/#{current_user.id}/bookings/#{@booking.id}/payments/:id"
-        }
       }
     }
   %>
+
+  <!-- % actions: {
+    show: {
+      path: "/users/#{current_user.id}/bookings/#{@booking.id}/payments/:id"
+  } %-->
+
 </div>

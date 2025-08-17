@@ -63,7 +63,7 @@ Rails.application.configure do
   config.assets.quiet = true
 
   # for payment webhooks via ngrok
-  config.hosts << "82e792211e32.ngrok-free.app"
+  config.hosts << "029adf7ad8bd.ngrok-free.app"
 
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true

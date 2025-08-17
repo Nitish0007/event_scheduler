@@ -1,12 +1,30 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["form", "submitButton", "cardErrors", "cardElement", "paymentMethod"]
-  static values = { 
-    stripeKey: String,
-    successUrl: String,
+  static targets = [
+    "form",
+    "card",
+    "cardErrors",
+    "submitButton",
+    "userId",
+    "bookingId",
+    "paymentId",
+    "authToken",
+    "stripeKey",
+    "successUrl",
+    "paymentMethod",
+    "cardElement"
+  ]
+  
+  static values = {
     userName: String,
-    userEmail: String
+    userEmail: String,
+    userId: Number,
+    bookingId: Number,
+    paymentId: Number,
+    authToken: String,
+    stripeKey: String,
+    successUrl: String
   }
 
   connect() {
@@ -80,7 +98,7 @@ export default class extends Controller {
     }
 
     // Initialize card element if Stripe is selected
-    if (selectedMethod.value === 'stripe' && this.stripeInitialized) {
+    if (selectedMethod.value === 'card' && this.stripeInitialized) {
       this.mountCardInput()
     }
   }
@@ -92,11 +110,14 @@ export default class extends Controller {
     this.cardElementTarget.innerHTML = ''
 
     // Create and mount card element
-    this.card = this.createCardElement()
+    if(!this.card) {
+      this.card = this.createCardElement()
+      // add card change listener
+      this.card.addEventListener('change', (event) => this.handleCardChange(event))
+    }
+    
+    // Add card
     this.card.mount(this.cardElementTarget)
-
-    // Add card change listener
-    this.card.addEventListener('change', (event) => this.handleCardChange(event))
   }
 
   createCardElement() {
@@ -138,7 +159,7 @@ export default class extends Controller {
       return
     }
 
-    if (selectedMethod.value === 'stripe') {
+    if (selectedMethod.value === 'card') {
       this.handleStripePayment()
     } else {
       this.handleOtherPaymentMethods(selectedMethod.value)
@@ -147,23 +168,42 @@ export default class extends Controller {
 
   async handleStripePayment() {
     try {
+      // Use API endpoint for JSON requests
+      const apiUrl = `/api/v1/${this.userIdValue}/bookings/${this.bookingIdValue}/payments/${this.paymentIdValue}.json`
+      
+      // Get auth token if available (for calls from views)
+      const authToken = this.authTokenValue || document.querySelector('meta[name="auth-token"]')?.getAttribute('content')
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+      
+      // Add Authorization header if token is available
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`
+      }
+      
       // Create payment on server
-      const response = await fetch(this.formTarget.action, {
+      const response = await fetch(apiUrl, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
+        headers: headers,
         body: JSON.stringify({
-          payment: { payment_method: 'stripe' }
+          payment: { payment_method: 'card' }
         })
       })
+
+      // Check if response is ok
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+      }
 
       const data = await response.json()
       if (data.error) throw new Error(data.error)
 
       // Confirm payment with Stripe
-      const result = await this.confirmStripePayment(data.client_secret)
+      const result = await this.confirmStripePayment(data.data.client_secret)
       
       if (result.error) {
         this.showError(result.error.message)
@@ -172,6 +212,7 @@ export default class extends Controller {
         this.redirectToSuccess()
       }
     } catch (error) {
+      console.log(error)
       this.showError(error.message)
       this.setProcessingState(false)
     }

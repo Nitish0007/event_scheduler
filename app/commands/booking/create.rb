@@ -11,8 +11,15 @@ class Booking::Create < CreateCommand
         resource_params.merge!(ticket_id: tickets&.id, total_amount: tickets&.price_per_ticket * resource_params[:quantity].to_i, status: :payment_pending, currency: 'inr')
 
         # find booking for given user_id and ticket_id and same quantity with status payment_pending
+        message = nil
         booking = Booking.find_by(user_id: @user.id, ticket_id: tickets&.id, quantity: resource_params[:quantity], status: :payment_pending)
-        resource = booking.present? ? booking : Booking.new(resource_params) # create booking with pending status
+        if booking.present? && booking.presisted? 
+          resource = booking
+          message = "Complete the payment to confirm your booking"
+        else
+          resource = Booking.new(resource_params) # create booking with pending status
+          message = "Your booking request is created, please proceed to payment and complete the process"
+        end
         payment = resource.payments.where(status: :pending).first_or_initialize
 
         payment.update!(
@@ -25,7 +32,7 @@ class Booking::Create < CreateCommand
         if resource.save
           resource.reload
           return {
-            message: "Your booking request is created, please proceed to payment and complete the process",
+            message: message,
             data: resource,
             payment_id: payment.id
           }

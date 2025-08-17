@@ -30,7 +30,6 @@ class Webhooks::StripeController < ApplicationController
   end
   
   private
-  
   def handle_payment_success(payment_intent)
     payment = Payment.find_by(stripe_payment_intent_id: payment_intent.id)
     return unless payment
@@ -65,9 +64,9 @@ class Webhooks::StripeController < ApplicationController
     payment.update!(status: :cancelled)
     payment.booking.update!(status: :cancelled)
   end
-  
+
   def verify_stripe_signature
-    # This method verifies that the webhook came from Stripe
-    # The actual verification is done in the create method
+    # TODO: Implement signature verification
+    # currently we are verifying the signature in the create action itself
   end
 end 

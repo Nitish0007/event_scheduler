@@ -1,6 +1,6 @@
-process_pending_bookings:
-  # run every 15 minutes
-  cron: "*/15 * * * *"
-  description: "Process pending bookings via cron for all events"
-  class: "PendingBookingRakeWrapperJob"
-  queue: "process_pending_bookings"
+bulk_payment_processor:
+  # run every 10 minutes
+  cron: "*/10 * * * *"
+  description: "Process pending payments via cron"
+  class: "BulkPaymentProcessorJob"
+  queue: "bulk_payment_processor"

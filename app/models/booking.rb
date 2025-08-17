@@ -3,7 +3,7 @@ class Booking < ApplicationRecord
   belongs_to :ticket
   has_many :payments, dependent: :destroy
   
-  enum status: { payment_pending: 0, confirmed: 1, cancelled: 2, failed: 3, payment_failed: 4, payment_completed: 5 }
+  enum status: { payment_pending: 0, confirmed: 1, cancelled: 2, failed: 3, payment_failed: 4, payment_completed: 5, payment_processing: 6 }
 
   validates :quantity, presence: true, numericality: { greater_than: 0 }
   
@@ -13,6 +13,10 @@ class Booking < ApplicationRecord
   
   def payment_required?
     successful_payment.nil?
+  end
+
+  def payment_processing
+    payments.find_by(status: :processing)
   end
   
   def can_cancel?

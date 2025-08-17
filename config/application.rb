@@ -16,6 +16,8 @@ module EventScheduler
     config.middleware.use ActionDispatch::Cookies  # Allow cookies
     config.middleware.use ActionDispatch::Session::CookieStore, key: '_event_scheduler_app_session'
 
+    config.cache_store = :redis_cache_store, { url: ENV.fetch('REDIS_URL', 'redis://localhost:6379/0') }
+
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.

@@ -33,6 +33,7 @@ class Event < ApplicationRecord
     end
   end
 
+  # NOTE: This is no longer used
   def process_pending_bookings
     pending_bookings = Booking.includes(:ticket).where(status: "payment_completed", ticket: { event_id: self.id })
     booking_ids_to_be_confirmed = []
@@ -56,7 +57,7 @@ class Event < ApplicationRecord
       end
     end
 
-    # TODO: can update without triggering callbacks and validations
+    # TODO: check if this can be updated without triggering callbacks and validations
     pending_bookings.map(&:save)
     
     ActiveRecord::Base.transaction do

@@ -29,6 +29,8 @@ class Ticket < ApplicationRecord
         self.available_count = self.available_count.to_i + self.tickets_count.to_i
       end
     end
+    # update available tickets count in redis store
+    RedisStore.set("available_tickets_#{self.event_id}_#{self.ticket_type}", self.available_count)
   end
 
   def update_total_tickets_count_of_event

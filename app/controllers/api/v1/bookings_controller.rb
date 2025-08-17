@@ -1,26 +1,15 @@
 class Api::V1::BookingsController < Api::V1::BaseController
   before_action :allow_customer_only, only: [:create, :destroy]
+  before_action :set_ticket, only: [:create]
 
-  # def create
-  #   event = Event.find_by_id(params[:booking][:event_id])
-  #   if event.present?
-  #     ticket_id = event.tickets.where(ticket_type: params[:booking][:ticket_type]).first&.id
-  #     unless ticket_id.present?
-  #       render json: { errors: ["No '#{params[:booking][:ticket_type]}' tickets available for this event"] }, status: :unprocessable_entity
-  #     end
-  #     params[:booking][:ticket_id] = ticket_id
-  #   end
-  #   booking = Booking.new(booking_params)
-
-  #   if booking.save
-  #     render json: { data: "Your Request is being processed you will get email on booking status" }, status: :created
-  #   else
-  #     render json: { errors: booking.errors }, status: :unprocessable_entity
-  #   end
-  # end
-
-  def update
-    # no plan to update bookings for now
+  def create
+    command = command_klass(:create).new(params, @base_klass, current_user, options)
+    @result = command.run
+    render_json(@base_klass, @result, :created)
+  rescue BaseCommand::CommandError => e
+    render_error(e.error_message, e.status_code)
+  rescue => e
+    render_error("Internal server error", :internal_server_error)
   end
 
   def destroy
@@ -40,6 +29,11 @@ class Api::V1::BookingsController < Api::V1::BaseController
   private
   def create_params
     params.require(:booking).permit(:user_id, :quantity, :ticket_id)
+  end
+
+  def set_ticket
+    @ticket = Ticket.find(params[:ticket_id])
+    @booking = Booking.new(ticket_id: @ticket.id)
   end
 
   def options

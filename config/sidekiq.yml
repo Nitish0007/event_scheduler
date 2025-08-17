@@ -1,3 +1,5 @@
 :queues:
-  - process_pending_bookings
+  - payment_processor
+  - bulk_payment_processor
+  - sync_payments
   - default

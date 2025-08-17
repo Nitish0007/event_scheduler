@@ -1,3 +1,4 @@
+<% is_already_being_processed = RedisStore.exists?("payment_ref_#{@payment.reference_number}") %>
 <div class="min-h-screen bg-gray-50">
   <div class="bg-blue-600 px-8 py-6">
     <h1 class="text-3xl font-bold text-white">Complete Payment</h1>
@@ -37,67 +38,76 @@
       <!-- Payment Form with Stimulus Controller -->
       <div data-controller="payment" 
            data-payment-stripe-key-value="<%= @stripe_public_key %>"
+           data-payment-booking-id-value="<%= @booking.id %>"
+           data-payment-payment-id-value="<%= @payment.id %>"
+           data-payment-user-id-value="<%= current_user.id %>"
            data-payment-success-url-value="<%= "/users/#{current_user.id}/bookings/#{@booking.id}" %>"
            data-payment-user-name-value="<%= "#{current_user.first_name} #{current_user.last_name}" %>"
-           data-payment-user-email-value="<%= current_user.email %>">
+           data-payment-user-email-value="<%= current_user.email %>"
+           data-payment-auth-token-value="<%= api_auth_token %>">
 
-        
-        <%= form_with model: @payment, url: "/users/#{current_user.id}/bookings/#{@booking.id}/payments/#{@payment.id}", 
-                      method: :patch,
-                      html: { id: "payment-form", data: { payment_target: "form" } } do |f| %>
-
-          <!-- Payment Method Selection -->
-          <div class="mb-6">
-            <label class="block text-lg font-medium text-gray-700 mb-4">Select Payment Method</label>
-            <div class="space-y-3">
-              <label class="flex items-center">
-                <%= f.radio_button :payment_method, 'stripe', 
-                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300",
-                    data: { payment_target: "paymentMethod" } %>
-                <span class="ml-3 text-gray-700">Credit/Debit Card</span>
-              </label>
-              
-              <label class="flex items-center">
-                <%= f.radio_button :payment_method, 'upi', 
-                    class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300",
-                    data: { payment_target: "paymentMethod" } %>
-                <span class="ml-3 text-gray-700">UPI</span>
-              </label>
+        <% if is_already_being_processed %>
+            <div class="mb-6">
+              <p class="text-red-600 text-lg">Payment is already being processed. Please wait for the payment to complete.</p>
             </div>
-          </div>
+        <% else %>
+          <%= form_with model: @payment, url: "/api/v1/#{current_user.id}/bookings/#{@booking.id}/payments/#{@payment.id}.json", 
+                        method: :patch,
+                        html: { id: "payment-form", data: { payment_target: "form" } } do |f| %>
 
-          <!-- Stripe Card Details -->
-          <div id="stripe-fields" class="payment-method-fields">
-            <label class="block text-lg font-medium text-gray-700 mb-4">Card Details</label>
-            <div data-payment-target="cardElement" class="border border-gray-300 rounded-lg p-4 bg-white min-h-[50px]">
-              <!-- Stripe Elements will be inserted here -->
-            </div>
-          </div>
-
-          <!-- UPI Fields -->
-          <div id="upi-fields" class="payment-method-fields hidden">
-            <div class="space-y-4">
-              <div>
-                <%= f.label :upi_id, "UPI ID", class: "block text-sm font-medium text-gray-700 mb-2" %>
-                <%= f.text_field :upi_id, class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
-              </div>
-              <div>
-                <%= f.label :mobile_number, "Mobile Number", class: "block text-sm font-medium text-gray-700 mb-2" %>
-                <%= f.telephone_field :mobile_number, class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            <!-- Payment Method Selection -->
+            <div class="mb-6">
+              <label class="block text-lg font-medium text-gray-700 mb-4">Select Payment Method</label>
+              <div class="space-y-3">
+                <label class="flex items-center">
+                  <%= f.radio_button :payment_method, 'card', 
+                      class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300",
+                      data: { payment_target: "paymentMethod" } %>
+                  <span class="ml-3 text-gray-700">Credit/Debit Card</span>
+                </label>
+                
+                <label class="flex items-center">
+                  <%= f.radio_button :payment_method, 'upi', 
+                      class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300",
+                      data: { payment_target: "paymentMethod" } %>
+                  <span class="ml-3 text-gray-700">UPI</span>
+                </label>
               </div>
             </div>
-          </div>
 
-          <!-- Error Display -->
-          <div id="card-errors" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg" 
-               data-payment-target="cardErrors"></div>
+            <!-- Card Details -->
+            <div id="card-fields" class="payment-method-fields">
+              <label class="block text-lg font-medium text-gray-700 mb-4">Card Details</label>
+              <div data-payment-target="cardElement" class="border border-gray-300 rounded-lg p-4 bg-white min-h-[50px]">
+                <!-- Stripe Elements will be inserted here -->
+              </div>
+            </div>
 
-          <!-- Submit Button -->
-          <div class="mt-6">
-            <%= f.submit "Pay Now", 
-                class: "w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors",
-                data: { payment_target: "submitButton" } %>
-          </div>
+            <!-- UPI Fields -->
+            <div id="upi-fields" class="payment-method-fields hidden">
+              <div class="space-y-4">
+                <div>
+                  <%= f.label :upi_id, "UPI ID", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                  <%= f.text_field :upi_id, class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+                <div>
+                  <%= f.label :mobile_number, "Mobile Number", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                  <%= f.telephone_field :mobile_number, class: "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error Display -->
+            <div id="card-errors" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg" 
+                data-payment-target="cardErrors"></div>
+
+            <!-- Submit Button -->
+            <div class="mt-6">
+              <%= f.submit "Pay Now", 
+                  class: "w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors",
+                  data: { payment_target: "submitButton" } %>
+            </div>
+          <% end %>
         <% end %>
       </div>
     </div>

@@ -11,11 +11,32 @@ class ApplicationController < ActionController::Base
 	helper_method :organizer_user?
 	helper_method :customer_user?
 	helper_method :is_api_request?
+	helper_method :api_auth_token
 
 	# override devise's authenticate_user! method to rails-views requests and avoid in case of APIs requests
 	def authenticate_user!
 		super unless is_api_request?
 	end
+
+
+	def api_auth_token
+		token = RedisCache.get("api_auth_token_#{@current_user.id}")
+		if token.present?
+			return token
+		end
+
+		return nil unless @current_user
+		
+		payload = {
+			id: @current_user.id,
+			email: @current_user.email,
+			role: @current_user.role
+		}
+		token = JwtToken.generate(payload, 10.minutes.from_now)
+		RedisCache.set("api_auth_token_#{@current_user.id}", token, expires_in: 10.minutes.to_i)
+		token
+	end
+
 
 	def authenticate_request!
 		# Only authenticate for v1 API requests

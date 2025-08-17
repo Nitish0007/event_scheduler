@@ -1,21 +1,50 @@
 class PaymentsController < BaseController
-  # before_action :authenticate_user!
+  # skip_before_action :authenticate_user!
   before_action :ensure_configured
   before_action :set_booking, only: [:show, :update, :success, :cancel]
 
   def update
     command = command_klass(:update).new(params, @base_klass, current_user, options)
     @result = command.run
-    # if @result[:success]
-    #   flash[:success] = 'Payment is being processed.'
-    # else
-    #   flash[:alert] = 'Something went wrong'
-    # end
-    redirect_to booking_path(@result[:data])
+
+    respond_to do |format|
+      format.html do
+        if @result[:success]
+          flash[:success] = @result[:message]
+          redirect_to booking_path(@result[:booking_id])
+        else
+          flash[:alert] = @result[:message]
+          redirect_to dashboard_path(current_user)
+        end
+      end
+      format.json do
+        if @result[:success]
+          render json: { data: @result }, status: :ok
+        else
+          render json: { error: @result[:message] }, status: :unprocessable_entity
+        end
+      end
+    end
   rescue BaseCommand::CommandError => e
-    handle_error(e)
+    respond_to do |format|
+      format.html do
+        flash[:alert] = e.message
+        redirect_to dashboard_path(current_user)
+      end
+      format.json do
+        render json: { error: e.message }, status: e.status_code || :unprocessable_entity
+      end
+    end
   rescue => e
-    handle_error(e)
+    respond_to do |format|
+      format.html do
+        flash[:alert] = "Internal server error"
+        redirect_to dashboard_path(current_user)
+      end
+      format.json do
+        render json: { error: "Internal server error" }, status: :internal_server_error
+      end
+    end
   end
   
   def show
