@@ -262,7 +262,6 @@ db/
 For questions, issues, or contributions, please contact:
 - **Email**: 0007nitishsharma@gmail.com
 - **GitHub Issues**: [Create an issue](https://github.com/Nitish0007/event_scheduler/issues)
-
 ---
 
 **Happy Event Scheduling! 🎉**
