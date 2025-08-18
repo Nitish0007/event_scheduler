@@ -3,16 +3,19 @@ class Api::V1::PaymentsController < Api::V1::BaseController
   before_action :set_booking, only: [:show, :update, :success, :cancel]
 
   def show
-    @payment = Payment.find_by(id: params[:id], user_id: current_user.id)
-    
-    if @payment
-      render json: {
-        data: PaymentSerializer.new(@payment).as_json,
-        stripe_public_key: Rails.configuration.stripe[:publishable_key]
-      }, status: :ok
-    else
-      render_error("Payment not found", :not_found)
+    command = Payment::Show.new(params, Payment, current_user, {})
+    @result = command.run
+    if @result[:success]
+      @result[:stripe_public_key] = Rails.configuration.stripe[:publishable_key]
     end
+
+    render json: @result, status: :ok
+  rescue BaseCommand::CommandError => e
+    render_error(e.message, e.status_code || :unprocessable_entity)
+  rescue => e
+    Rails.logger.error("Payment show error: #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
+    render_error("Failed to show payment", :internal_server_error)
   end
 
   def update

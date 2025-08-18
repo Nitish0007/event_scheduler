@@ -15,6 +15,9 @@ class Booking::Create < CreateCommand
         booking = Booking.find_by(user_id: @user.id, ticket_id: tickets&.id, quantity: resource_params[:quantity], status: :payment_pending)
         if booking.present? && booking.presisted? 
           resource = booking
+          if booking.payments.where(status: [:completed]).any?
+            raise_bad_request_error("You have already completed the payment for this booking", :unprocessable_entity)
+          end
           message = "Complete the payment to confirm your booking"
         else
           resource = Booking.new(resource_params) # create booking with pending status

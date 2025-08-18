@@ -79,25 +79,32 @@ class Payment < ApplicationRecord
   end
 
   def sync_with_stripe
-    if stripe_payment_intent_id.present?
-      payment_intent = Stripe::PaymentIntent.retrieve(stripe_payment_intent_id)
-      if payment_intent.status == "succeeded"
-        self.update!(status: :completed)
-        self.booking.update!(status: :confirmed)
-      elsif payment_intent.status == "failed"
+    ActiveRecord::Base.transaction do
+      if stripe_payment_intent_id.present?
+        payment_intent = Stripe::PaymentIntent.retrieve(stripe_payment_intent_id)
+        if payment_intent.status == "succeeded"
+          self.update!(status: :completed)
+          self.booking.update!(status: :confirmed)
+          self.booking.ticket.update!(booked_ticket_count: self.booking.ticket.booked_ticket_count + self.booking.quantity)
+          RedisStore.decrby("available_tickets_#{self.booking.ticket.event_id}_#{self.booking.ticket_type}", self.booking.quantity)
+        elsif payment_intent.status == "failed"
+          self.update!(status: :failed)
+          self.booking.update!(status: :payment_failed)
+        elsif payment_intent.status == "canceled"
+          self.update!(status: :cancelled)
+          self.booking.update!(status: :payment_failed)
+        elsif payment_intent.status == "processing"
+          self.update!(status: :processing)
+          self.booking.update!(status: :payment_processing)
+        end
+      else
         self.update!(status: :failed)
         self.booking.update!(status: :payment_failed)
-      elsif payment_intent.status == "canceled"
-        self.update!(status: :cancelled)
-        self.booking.update!(status: :payment_failed)
-      elsif payment_intent.status == "processing"
-        self.update!(status: :processing)
-        self.booking.update!(status: :payment_processing)
       end
-    else
-      self.update!(status: :failed)
-      self.booking.update!(status: :payment_failed)
     end
+  rescue StandardError => e
+    Rails.logger.error ">>>>>>> Error in sync with stripe: #{e.message}"
+    raise e
   end
 
   def total_amount
