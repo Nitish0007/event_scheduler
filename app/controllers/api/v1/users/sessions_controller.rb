@@ -17,8 +17,9 @@ class Api::V1::Users::SessionsController < Devise::SessionsController
         role: user.role
       }
       token = JwtToken.generate(payload)
-      render json: { message: "Logged in successfully", token: token }
-    else
+      
+      render json: { message: "Logged in successfully", token: token, id: user.id }, status: :ok
+      else
       render json: { message: "Invalid email or password" }, status: :unauthorized
     end
   end
