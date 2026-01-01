@@ -12,7 +12,8 @@ module JwtToken
   def self.verify(token)
     return nil if token.blank?
     decoded = JWT.decode(token, SECRET_KEY, true, { algorithm: ALGORITHM })[0]
-    HashWithIndifferentAccess.new(decoded)
+    decoded = HashWithIndifferentAccess.new(decoded)
+    decoded
   rescue JWT::ExpiredSignature
     puts ">>>>>>>>>>>>>>>>>>> Token has expired"
     nil
